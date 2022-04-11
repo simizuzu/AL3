@@ -53,11 +53,11 @@ void GameScene::Update() {
 		audio_->StopWave(voiceHandle_);
 	}
 
-	//デバックテキストの表示
-	debugText_->Print("Kaizokuou ni oreha naru.", 50, 50, 1.0f);
-	//書式指定付き表示
-	debugText_->SetPos(50, 70);
-	debugText_->Printf("year:%d", 2001);
+	////デバックテキストの表示
+	//debugText_->Print("Kaizokuou ni oreha naru.", 50, 50, 1.0f);
+	////書式指定付き表示
+	//debugText_->SetPos(50, 70);
+	//debugText_->Printf("year:%d", 2001);
 	//変数の値をインクリメント
 	value_++;
 	//値を含んだ文字列
