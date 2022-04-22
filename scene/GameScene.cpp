@@ -41,7 +41,7 @@ void GameScene::Update() {
 		float add_y = sin(rad) * 10.0f;
 
 		//角度加算
-		Angle[i] += 1.0f;
+		Angle[i] += 2.0f;
 
 		//中心座標に位置を加算
 		worldTransform_[i].translation_.x = 0.0f + add_x;
