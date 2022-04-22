@@ -22,26 +22,22 @@ void GameScene::Initialize() {
 
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
 
-		// X, Y, Z方向のスケーリングを設定
-		worldTransform_[i].scale_ = {5.0f, 5.0f, 5.0f};
+		for (size_t j = 0; j < _countof(worldTransform_); j++) {
+			// X, Y, Z方向のスケーリングを設定
+			worldTransform_[i][j].scale_ = {1.0f, 1.0f, 1.0f};
 
-		if (i < 9) { //下
-			worldTransform_[i].translation_ = {-40.0f + i * 10.0f, -20.0f, 0};
+			worldTransform_[i][j].translation_ = {-16.0f + j * 4.0f, -16.0f + i * 4.0f, 0};
 
-		} else { //上
-			worldTransform_[i].translation_ = {-40.0f + (i - 9) * 10.0f, 20.0f, 0};
+			//ワールドトランスフォームの初期化
+			worldTransform_[i][j].Initialize();
 		}
-
-		//ワールドトランスフォームの初期化
-		worldTransform_[i].Initialize();
 	}
+
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 }
 
-void GameScene::Update() {
-
-}
+void GameScene::Update() {}
 
 void GameScene::Draw() {
 
@@ -69,8 +65,15 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+	
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
+		for (size_t j = 0; j < _countof(worldTransform_); j++) {
+
+			if (i % 2 == 1 && j % 2 == 1) {
+				continue;
+			}
+			model_->Draw(worldTransform_[i][j], viewProjection_, textureHandle_);
+		}
 	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
