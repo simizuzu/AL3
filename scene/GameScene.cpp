@@ -62,7 +62,7 @@ void GameScene::Initialize() {
 	worldTransform_[PartId::Hip].parent_ = &worldTransform_[PartId::Spine];
 	worldTransform_[PartId::Hip].Initialize();
 	//左足
-	worldTransform_[PartId::LegL].translation_ = {3.0, -3.0f, 0};
+	worldTransform_[PartId::LegL].translation_ = {3.0f, -3.0f, 0};
 	worldTransform_[PartId::LegL].parent_ = &worldTransform_[PartId::Hip];
 	worldTransform_[PartId::LegL].Initialize();
 	//右足
