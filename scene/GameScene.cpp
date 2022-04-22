@@ -23,13 +23,18 @@ void GameScene::Initialize() {
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
 
 		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-			// X, Y, Z方向のスケーリングを設定
-			worldTransform_[i][j].scale_ = {1.0f, 1.0f, 1.0f};
 
-			worldTransform_[i][j].translation_ = {-16.0f + j * 4.0f, -16.0f + i * 4.0f, 0};
+			for (size_t k = 0; k < _countof(worldTransform_); k++) {
 
-			//ワールドトランスフォームの初期化
-			worldTransform_[i][j].Initialize();
+				worldTransform_[i][j][k].scale_ = {1.0f, 1.0f, 1.0f};
+
+				//平行移動を設定
+				worldTransform_[i][j][k].translation_ = {
+				  -12.0f + j * 3.0f, -12.0f + i * 3.0f, 0.0f + k * 4.0f};
+
+				//ワールドトランスフォーム初期化
+				worldTransform_[i][j][k].Initialize();
+			}
 		}
 	}
 
@@ -65,14 +70,18 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	
+
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+
 		for (size_t j = 0; j < _countof(worldTransform_); j++) {
 
-			if (i % 2 == 1 && j % 2 == 1) {
-				continue;
+			for (size_t k = 0; k < _countof(worldTransform_); k++) {
+
+				if (i % 2 == 1 && j % 2 == 1 && k % 2 == 1) {
+					continue;
+				}
+				model_->Draw(worldTransform_[i][j][k], viewProjection_, textureHandle_);
 			}
-			model_->Draw(worldTransform_[i][j], viewProjection_, textureHandle_);
 		}
 	}
 	// 3Dオブジェクト描画後処理
