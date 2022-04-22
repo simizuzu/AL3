@@ -36,7 +36,8 @@ void GameScene::Initialize() {
 				worldTransform_[i][j][k].Initialize();
 			}
 		}
-	}
+	} 
+
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -70,11 +71,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-
+	
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-
 		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-
 			for (size_t k = 0; k < _countof(worldTransform_); k++) {
 
 				if (i % 2 == 1 && j % 2 == 1 && k % 2 == 1) {
