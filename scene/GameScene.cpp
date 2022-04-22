@@ -22,28 +22,35 @@ void GameScene::Initialize() {
 
 	for (size_t i = 0; i < _countof(worldTransform_); i++) {
 
-		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-
-			for (size_t k = 0; k < _countof(worldTransform_); k++) {
-
-				worldTransform_[i][j][k].scale_ = {1.0f, 1.0f, 1.0f};
-
-				//平行移動を設定
-				worldTransform_[i][j][k].translation_ = {
-				  -12.0f + j * 3.0f, -12.0f + i * 3.0f, 0.0f + k * 4.0f};
-
-				//ワールドトランスフォーム初期化
-				worldTransform_[i][j][k].Initialize();
-			}
-		}
-	} 
-
+		//ワールドトランスフォームの初期化
+		worldTransform_[i].Initialize();
+	}
 
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+
+		// 度数法を変換
+		float rad = Angle[i] * XM_PI / 180.0f;
+
+		//円の位置を割り出す
+		float add_x = cos(rad) * 10.0f;
+		float add_y = sin(rad) * 10.0f;
+
+		//角度加算
+		Angle[i] += 1.0f;
+
+		//中心座標に位置を加算
+		worldTransform_[i].translation_.x = 0.0f + add_x;
+		worldTransform_[i].translation_.y = 0.0f + add_y;
+
+		//ワールドトランスフォーム初期化
+		worldTransform_[i].UpdateMatrix();
+	}
+}
 
 void GameScene::Draw() {
 
@@ -71,18 +78,11 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	
-	for (size_t i = 0; i < _countof(worldTransform_); i++) {
-		for (size_t j = 0; j < _countof(worldTransform_); j++) {
-			for (size_t k = 0; k < _countof(worldTransform_); k++) {
 
-				if (i % 2 == 1 && j % 2 == 1 && k % 2 == 1) {
-					continue;
-				}
-				model_->Draw(worldTransform_[i][j][k], viewProjection_, textureHandle_);
-			}
-		}
+	for (size_t i = 0; i < _countof(worldTransform_); i++) {
+		model_->Draw(worldTransform_[i], viewProjection_, textureHandle_);
 	}
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
