@@ -4,17 +4,6 @@
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
 
-Matrix4 scaling(Vector3 scale) {
-	// スケーリング行列を設定
-	Matrix4 matScale;
-	matScale.m[0][0] = scale.x;
-	matScale.m[1][1] = scale.y;
-	matScale.m[2][2] = scale.z;
-	matScale.m[3][3] = 1.0f;
-
-	return matScale;
-}
-
 Matrix4 Identity() {
 	// 単位行列を設定
 	Matrix4 matIdentity;
@@ -24,6 +13,68 @@ Matrix4 Identity() {
 	matIdentity.m[3][3] = 1.0f;
 
 	return matIdentity;
+}
+
+// スケーリング行列を設定
+Matrix4 Scaling(Vector3 scale) {
+	Matrix4 matScale;
+	matScale.m[0][0] = scale.x;
+	matScale.m[1][1] = scale.y;
+	matScale.m[2][2] = scale.z;
+	matScale.m[3][3] = 1.0f;
+
+	return matScale;
+}
+
+//回転行列を設定
+Matrix4 RotationX(float angle) {
+	//X軸周りの回転
+	Matrix4 matRotX;
+	matRotX.m[1][1] = cos(angle);
+	matRotX.m[1][2] = -sin(angle);
+
+	matRotX.m[2][1] = sin(angle);
+	matRotX.m[2][2] = cos(angle);
+
+	matRotX.m[0][0] = 1.0f;
+	matRotX.m[3][3] = 1.0f;
+
+	return matRotX;
+}
+
+Matrix4 RotationY(float angle) {
+	//Y軸周りの回転
+	Matrix4 matRotY;
+	matRotY.m[0][0] = cos(angle);
+	matRotY.m[0][2] = sin(angle);
+
+	matRotY.m[2][0] = -sin(angle);
+	matRotY.m[2][2] = cos(angle);
+	
+	matRotY.m[1][1] = 1.0f;
+	matRotY.m[3][3] = 1.0f;
+
+	return matRotY;
+}
+
+Matrix4 RotationZ(float angle) {
+	//Z軸回りの回転
+	Matrix4 matRotZ;
+	matRotZ.m[0][0] = cos(angle);
+	matRotZ.m[0][1] = sin(angle);
+
+	matRotZ.m[1][1] = -sin(angle);
+	matRotZ.m[1][0] = cos(angle);
+
+	matRotZ.m[2][2] = 1.0f;
+	matRotZ.m[3][3] = 1.0f;
+
+	return matRotZ;
+}
+
+float PI = 3.14f;
+float DegreeMethod(float degree) {
+	return degree * PI / 180.0;
 }
 
 GameScene::GameScene() {}
@@ -61,13 +112,34 @@ void GameScene::Initialize() {
 	// ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
 	PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 
-	// X, Y, Z 方向のスケーリングを設定
-	worldTransform_.scale_ = { 5,1,1 };
-	// スケーリング行列を宣言
-	Matrix4 matScale = scaling(worldTransform_.scale_);
+	//// X, Y, Z 方向のスケーリングを設定
+	//worldTransform_.scale_ = { 5,1,1 };
+	//// スケーリング行列を宣言
+	//Matrix4 matScale = Scaling(worldTransform_.scale_);
+	//// 単位行列の代入
+	//worldTransform_.matWorld_ = Identity();
+	//// matScaleの代入
+	//worldTransform_.matWorld_ *= matScale;
 
+	// X, Y, Z 軸回りの回転角を設定
+	worldTransform_.rotation_ = { 0.0f ,DegreeMethod(45.0f) ,0.0f};
+	// 合成用回転行列を宣言
+	Matrix4 matRot = Identity(); // 単位行列を代入
+	// 各軸回転行列を宣言
+	Matrix4 matRotX = RotationX(worldTransform_.rotation_.x);
+	Matrix4 matRotY = RotationY(worldTransform_.rotation_.y);
+	Matrix4 matRotZ = RotationZ(worldTransform_.rotation_.z);
+
+	
+	// 角回転行列の各要素を設定
+	matRot *= matRotZ;
+	matRot *= matRotX;
+	matRot *= matRotY;
+	
+	// 単位行列の代入
 	worldTransform_.matWorld_ = Identity();
-	worldTransform_.matWorld_ *= matScale;
+	// matScaleの代入
+	worldTransform_.matWorld_ *= matRot;
 
 	// 行列の転送
 	worldTransform_.TransferMatrix();
