@@ -3,6 +3,7 @@
 #include <cassert>
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
+#include <random>
 
 Matrix4 Identity() {
 	// 単位行列を設定
@@ -91,6 +92,13 @@ float DegreeMethod(const float& degree) {
 	float radian = degree * PI / 180.0f;
 	return radian;
 }
+
+// 乱数シード生成器
+std::random_device seed_gen;
+// メルセンヌ・ツイスターの乱数エンジン
+std::mt19937_64 engine(seed_gen());
+// 乱数範囲の設定
+std::uniform_real_distribution<float> dist();
 
 GameScene::GameScene() {}
 
