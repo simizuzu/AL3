@@ -93,13 +93,6 @@ float DegreeMethod(const float& degree) {
 	return radian;
 }
 
-// 乱数シード生成器
-std::random_device seed_gen;
-// メルセンヌ・ツイスターの乱数エンジン
-std::mt19937_64 engine(seed_gen());
-// 乱数範囲の設定
-std::uniform_real_distribution<float> dist();
-
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
@@ -167,6 +160,18 @@ void GameScene::Initialize() {
 	worldTransform_.matWorld_ *= matRot;
 	// matTransの代入
 	worldTransform_.matWorld_ *= matTrans;
+
+
+	// 乱数シード生成器
+	std::random_device seed_gen;
+	// メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲(回転角用)
+	std::uniform_real_distribution<float> rotDist(0.0f, PI);
+	//乱数範囲(座標用)
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
+
+	for()
 
 	// 行列の転送
 	worldTransform_.TransferMatrix();
