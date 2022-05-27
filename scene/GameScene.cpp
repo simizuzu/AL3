@@ -5,6 +5,10 @@
 #include "PrimitiveDrawer.h"
 #include <random>
 
+/// <summary>
+/// 単位行列を設定
+/// </summary>
+/// <returns>単位行列</returns>
 Matrix4 Identity() {
 	// 単位行列を設定
 	Matrix4 matIdentity;
@@ -16,7 +20,13 @@ Matrix4 Identity() {
 	return matIdentity;
 }
 
-// スケーリング行列を設定
+/// <summary>
+/// スケーリング行列を設定
+/// </summary>
+/// <param name="scaleX"></param>
+/// <param name="scaleY"></param>
+/// <param name="scaleZ"></param>
+/// <returns>スケーリング行列</returns>
 Matrix4 Scaling(Vector3 scale) {
 	Matrix4 matScale;
 	matScale.m[0][0] = scale.x;
@@ -27,8 +37,12 @@ Matrix4 Scaling(Vector3 scale) {
 	return matScale;
 }
 
+/// <summary>
+/// Z軸の回転行列
+/// </summary>
+/// <param name="angle"></param>
+/// <returns>Z軸の回転行列</returns>
 Matrix4 RotationZ(float angle) {
-	//Z軸回りの回転
 	Matrix4 matRotZ;
 	matRotZ.m[0][0] = cosf(angle);
 	matRotZ.m[0][1] = sinf(angle);
@@ -42,9 +56,12 @@ Matrix4 RotationZ(float angle) {
 	return matRotZ;
 }
 
-//回転行列を設定
+/// <summary>
+/// X軸の回転行列
+/// </summary>
+/// <param name="angle"></param>
+/// <returns>X軸の回転行列</returns>
 Matrix4 RotationX(float angle) {
-	//X軸周りの回転
 	Matrix4 matRotX;
 	matRotX.m[1][1] = cosf(angle);
 	matRotX.m[1][2] = sinf(angle);
@@ -59,8 +76,12 @@ Matrix4 RotationX(float angle) {
 	return matRotX;
 }
 
+/// <summary>
+/// Y軸の回転行列
+/// </summary>
+/// <param name="angle"></param>
+/// <returns>Y軸の回転行列</returns>
 Matrix4 RotationY(float angle) {
-	//Y軸周りの回転
 	Matrix4 matRotY;
 	matRotY.m[0][0] = cosf(angle);
 	matRotY.m[0][2] = -sinf(angle);
@@ -74,17 +95,62 @@ Matrix4 RotationY(float angle) {
 	return matRotY;
 }
 
-Matrix4 Translation(Vector3 tranlation) {
-	//平行移動行列の宣言
+/// <summary>
+/// 平行移動行列の宣言
+/// </summary>
+/// <param name="tranlationX"></param>
+/// <param name="tranlationY"></param>
+/// <param name="tranlationZ"></param>
+/// <returns>平行移動行列</returns>
+Matrix4 Translation(Vector3 translation) {
 	Matrix4 matTrans;
 	//単位行列を代入
 	matTrans = Identity();
 
-	matTrans.m[3][0] = tranlation.x;
-	matTrans.m[3][1] = tranlation.y;
-	matTrans.m[3][2] = tranlation.z;
+	matTrans.m[3][0] = translation.x;
+	matTrans.m[3][1] = translation.y;
+	matTrans.m[3][2] = translation.z;
 
 	return matTrans;
+}
+
+/// <summary>
+/// ワールド行列の計算(Vector3)
+/// </summary>
+/// <param name="scale">スケール</param>
+/// <param name="rotation">回転</param>
+/// <param name="transform">平行移動</param>
+/// <returns>ワールド行列</returns>
+Matrix4 UpdateMatrix(Vector3 scale, Vector3 rotation, Vector3 translation) { // 行列の合成関数
+	// 合成用の変数を宣言
+	Matrix4 matWorld;
+
+	matWorld = Identity();
+	matWorld *= Scaling(scale);
+	matWorld *= RotationZ(rotation.z);
+	matWorld *= RotationX(rotation.x);
+	matWorld *= RotationY(rotation.y);
+	matWorld *= Translation(translation);
+
+	return matWorld;
+}
+
+/// <summary>
+/// ワールド行列の計算(参照渡し)
+/// </summary>
+/// <param name="worldTransform">スケール, 回転, 平行移動</param>
+/// <returns>ワールド行列</returns>
+Matrix4 CreateMatrix(const WorldTransform& worldTransform) {
+	Matrix4 matWorld;
+
+	matWorld = Identity();
+	matWorld *= Scaling(worldTransform.scale_);
+	matWorld *= RotationZ(worldTransform.rotation_.z);
+	matWorld *= RotationX(worldTransform.rotation_.x);
+	matWorld *= RotationY(worldTransform.rotation_.y);
+	matWorld *= Translation(worldTransform.translation_);
+
+	return matWorld;
 }
 
 float PI = 3.141592654f;
@@ -113,11 +179,13 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	// 親
-	worldTransforms_[0].Initialize();
+	worldTransforms_[PartId::kRoot].Initialize();
 	// 子
-	worldTransforms_[1].Initialize();
-	worldTransforms_[1].translation_ = { 0.0f,4.5f,0.0f };
-	worldTransforms_[1].parent_ = &worldTransforms_[0];
+	worldTransforms_[PartId::kSpine].Initialize();
+	worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[PartId::kRoot];
+	worldTransforms_[PartId::kSpine].translation_ = { 0.0f,4.5f,0.0f };
+	
+
 
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -154,26 +222,34 @@ void GameScene::Update() {
 			move = { kCharacterSpeed,0,0 };
 		}
 
-		worldTransforms_[0].translation_.x += move.x;
-		worldTransforms_[0].translation_.y += move.y;
-		worldTransforms_[0].translation_.z += move.z;
+		worldTransforms_[0].translation_ += move;
 
-		worldTransforms_[0].matWorld_ *= Translation({ move.x,0.0f,0.0f });
+		worldTransforms_[0].matWorld_ = CreateMatrix(worldTransforms_[0]);
 
 		worldTransforms_[0].TransferMatrix(); // 行列の転送
 
 		debugText_->SetPos(50, 150);
 		debugText_->Printf(
-			"Root:(%f,%f,%f)", 
+			"Root:(%f,%f,%f)",
 			worldTransforms_[0].translation_.x,
 			worldTransforms_[0].translation_.y,
-			worldTransforms_[0].translation_.z
-		);
+			worldTransforms_[0].translation_.z);
 	}
 
 	// 子の更新
 	{
-		
+		worldTransforms_[1].matWorld_ = CreateMatrix(worldTransforms_[1]);
+
+		worldTransforms_[1].matWorld_ *= worldTransforms_[1].parent_->matWorld_;
+
+		worldTransforms_[1].TransferMatrix(); // 行列の転送
+
+		debugText_->SetPos(50, 170);
+		debugText_->Printf(
+			"Root:(%f,%f,%f)",
+			worldTransforms_[1].translation_.x,
+			worldTransforms_[1].translation_.y,
+			worldTransforms_[1].translation_.z);
 	}
 }
 
