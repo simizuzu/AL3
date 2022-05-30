@@ -5,6 +5,12 @@
 #include "PrimitiveDrawer.h"
 #include <random>
 
+float PI = 3.141592654f;
+float DegreeMethod(const float& degree) {
+	float radian = degree * PI / 180.0f;
+	return radian;
+}
+
 /// <summary>
 /// 単位行列を設定
 /// </summary>
@@ -153,10 +159,16 @@ Matrix4 CreateMatrix(const WorldTransform& worldTransform) {
 	return matWorld;
 }
 
-float PI = 3.141592654f;
-float DegreeMethod(const float& degree) {
-	float radian = degree * PI / 180.0f;
-	return radian;
+/// <summary>
+/// 1つ分のワールドトランスフォーム更新関数
+/// </summary>
+/// <param name="parentWorldTrans">親のワールドトランスフォーム</param>
+/// <param name="childWorldtrans">子のワールドトランスフォーム</param>
+void WorldTransUpdate(WorldTransform& parentWorldTrans, WorldTransform& childWorldtrans) {
+
+	childWorldtrans.matWorld_ = CreateMatrix(childWorldtrans); // 合成した行列の計算
+	childWorldtrans.matWorld_ *= parentWorldTrans.parent_->matWorld_; // parent_のワールド行列の掛け算代入
+	childWorldtrans.TransferMatrix(); // 行列の転送
 }
 
 GameScene::GameScene() {}
@@ -178,14 +190,44 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
-	// 親
+	// キャラクターの大元
 	worldTransforms_[PartId::kRoot].Initialize();
-	// 子
+	// 脊髄
 	worldTransforms_[PartId::kSpine].Initialize();
 	worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[PartId::kRoot];
 	worldTransforms_[PartId::kSpine].translation_ = { 0.0f,4.5f,0.0f };
-	
 
+	// 上半身
+	//Chest
+	worldTransforms_[PartId::kChest].Initialize();
+	worldTransforms_[PartId::kChest].parent_ = &worldTransforms_[PartId::kSpine];
+	worldTransforms_[PartId::kChest].translation_ = { 0.0f, 1.3f, 0.0f };
+	//Head
+	worldTransforms_[PartId::kHead].Initialize();
+	worldTransforms_[PartId::kHead].parent_ = &worldTransforms_[PartId::kChest];
+	worldTransforms_[PartId::kHead].translation_ = { 0.0f,3.0f,0.0f };
+	//ArmL
+	worldTransforms_[PartId::kArmL].Initialize();
+	worldTransforms_[PartId::kArmL].parent_ = &worldTransforms_[PartId::kChest];
+	worldTransforms_[PartId::kArmL].translation_ = { 3.0f,0.0f,0.0f };
+	//ArmR
+	worldTransforms_[PartId::kArmR].Initialize();
+	worldTransforms_[PartId::kArmR].parent_ = &worldTransforms_[PartId::kChest];
+	worldTransforms_[PartId::kArmR].translation_ = { -3.0f,0.0f,0.0f };
+
+	// 下半身
+	//Hip
+	worldTransforms_[PartId::kHip].Initialize();
+	worldTransforms_[PartId::kHip].parent_ = &worldTransforms_[PartId::kSpine];
+	worldTransforms_[PartId::kHip].translation_ = { 0.0f,-2.0f,0.0f };
+	//LegL
+	worldTransforms_[PartId::kLegL].Initialize();
+	worldTransforms_[PartId::kLegL].parent_ = &worldTransforms_[PartId::kHip];
+	worldTransforms_[PartId::kLegL].translation_ = { 3.0f,-3.0f,0.0f };
+	//LegR
+	worldTransforms_[PartId::kLegR].Initialize();
+	worldTransforms_[PartId::kLegR].parent_ = &worldTransforms_[PartId::kHip];
+	worldTransforms_[PartId::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
 
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -222,34 +264,23 @@ void GameScene::Update() {
 			move = { kCharacterSpeed,0,0 };
 		}
 
-		worldTransforms_[0].translation_ += move;
+		worldTransforms_[PartId::kSpine].translation_ += move;
 
-		worldTransforms_[0].matWorld_ = CreateMatrix(worldTransforms_[0]);
+		//worldTransforms_[0].matWorld_ = CreateMatrix(worldTransforms_[0]);
 
-		worldTransforms_[0].TransferMatrix(); // 行列の転送
+		//worldTransforms_[0].TransferMatrix(); // 行列の転送
 
 		debugText_->SetPos(50, 150);
 		debugText_->Printf(
 			"Root:(%f,%f,%f)",
-			worldTransforms_[0].translation_.x,
-			worldTransforms_[0].translation_.y,
-			worldTransforms_[0].translation_.z);
+			worldTransforms_[PartId::kSpine].translation_.x,
+			worldTransforms_[PartId::kSpine].translation_.y,
+			worldTransforms_[PartId::kSpine].translation_.z);
 	}
 
-	// 子の更新
-	{
-		worldTransforms_[1].matWorld_ = CreateMatrix(worldTransforms_[1]);
-
-		worldTransforms_[1].matWorld_ *= worldTransforms_[1].parent_->matWorld_;
-
-		worldTransforms_[1].TransferMatrix(); // 行列の転送
-
-		debugText_->SetPos(50, 170);
-		debugText_->Printf(
-			"Root:(%f,%f,%f)",
-			worldTransforms_[1].translation_.x,
-			worldTransforms_[1].translation_.y,
-			worldTransforms_[1].translation_.z);
+	//	大元から順に更新していく
+	for (int i = 0; i < 9; i++) {
+		WorldTransUpdate(worldTransforms_[i], worldTransforms_[i]);
 	}
 }
 
@@ -281,8 +312,10 @@ void GameScene::Draw() {
 	/// </summary>
 	// 3Dモデル描画
 
-	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
-	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
+	// 大元から順に描画していく
+	for (int i = 0; i < 9; i++) {
+		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
+	}
 
 	// ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
 	//PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3{ 0,0,0 }, Vector3{ 100,100,100 }, Vector4{ 0xff,0x00,0x00,0xff });
