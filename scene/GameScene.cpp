@@ -164,10 +164,10 @@ Matrix4 CreateMatrix(const WorldTransform& worldTransform) {
 /// </summary>
 /// <param name="parentWorldTrans">親のワールドトランスフォーム</param>
 /// <param name="childWorldtrans">子のワールドトランスフォーム</param>
-void WorldTransUpdate(WorldTransform& parentWorldTrans, WorldTransform& childWorldtrans) {
+void WorldTransUpdate(WorldTransform& childWorldtrans) {
 
 	childWorldtrans.matWorld_ = CreateMatrix(childWorldtrans); // 合成した行列の計算
-	childWorldtrans.matWorld_ *= parentWorldTrans.parent_->matWorld_; // parent_のワールド行列の掛け算代入
+	childWorldtrans.matWorld_ *= childWorldtrans.parent_->matWorld_; // parent_のワールド行列の掛け算代入
 	childWorldtrans.TransferMatrix(); // 行列の転送
 }
 
@@ -279,8 +279,8 @@ void GameScene::Update() {
 	}
 
 	//	大元から順に更新していく
-	for (int i = 0; i < 9; i++) {
-		WorldTransUpdate(worldTransforms_[i], worldTransforms_[i]);
+	for (int i = 1; i < 9; i++) {
+		WorldTransUpdate(worldTransforms_[i]);
 	}
 }
 
@@ -314,6 +314,9 @@ void GameScene::Draw() {
 
 	// 大元から順に描画していく
 	for (int i = 0; i < 9; i++) {
+		if (i < 2) {
+			continue;
+		}
 		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
 	}
 
