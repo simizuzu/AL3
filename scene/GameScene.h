@@ -9,7 +9,7 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include <DirectXMath.h>
+#include "DebugCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -48,6 +48,35 @@ class GameScene {
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
 
+	// テクスチャハンドル
+	uint32_t textureHandle_ = 0;
+	// 3Dモデル
+	Model* model_ = nullptr;
+
+	// ワールドトランスフォーム
+	WorldTransform worldTransforms_[100];
+	// ビュープロジェクション
+	ViewProjection viewProjection_;
+
+	// デバックカメラ
+	DebugCamera* debugCamera_ = nullptr;
+
+	//カメラ上方向の角度
+	float viewAngle = 0.0f;
+
+	enum PartId {
+		kRoot,		// 大元
+		kSpine,		// 脊髄
+		kChest,		// 胸
+		kHead,		// 頭
+		kArmL,		// 左腕
+		kArmR,		// 右腕
+		kHip,		// 尻
+		kLegL,		// 左足
+		kLegR,		// 右足
+
+		kNumPartId
+	};
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
