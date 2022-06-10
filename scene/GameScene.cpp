@@ -56,7 +56,12 @@ void GameScene::Update() {
 	player_->Update(createMatrix);
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
-		isDebugCameraActive_ = true;
+		if (isDebugCameraActive_ == false) {
+			isDebugCameraActive_ = true;
+		}
+		else {
+			isDebugCameraActive_ = false;
+		}
 	}	
 #endif // _DEBUG
 
@@ -68,6 +73,7 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	}
 	else {
+		viewProjection_.UpdateMatrix();
 		viewProjection_.TransferMatrix();
 	}
 }
