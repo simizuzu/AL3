@@ -42,8 +42,14 @@ void Player::Move(Affine* createMatrix) {
 	}
 
 	// ˆÚ“®ŒÀŠEÀ•W
-	const float kMoveLimitX = WinApp::kWindowWidth;
-	const float kMoveLimitX = WinApp::kWindowHeight;
+	const float kMoveLimitX = 35;
+	const float kMoveLimitY = 18;
+
+	// ”ÍˆÍ‚ð’´‚¦‚È‚¢ˆ— worldTransform_.translation_’l‚É§ŒÀ‚ð•`‚¯‚é
+	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
+	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
+	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
 	worldTransform_.translation_ += move;
 	worldTransform_.matWorld_ = createMatrix->CreateMatrix(worldTransform_);

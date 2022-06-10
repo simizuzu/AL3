@@ -63,6 +63,9 @@ class GameScene {
 	// デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
 
+	// デバックカメラ有効
+	bool isDebugCameraActive_ = false;
+
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
 
