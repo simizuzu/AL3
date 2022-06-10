@@ -5,7 +5,6 @@
 #include "DebugText.h"
 #include <assert.h>
 #include "Affine.h"
-#include "WinApp.h"
 
 /// <summary>
 /// Ž©ƒLƒƒƒ‰
