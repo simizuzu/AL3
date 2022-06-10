@@ -54,14 +54,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	debugCamera_->Update();
 	// 自キャラの更新
-	player_->Update();
-
-	player_->Move(input_);
-
-	debugText_->SetPos(50, 150);
-	debugText_->GetInstance()->Printf(
-		"eye(%f,%f,%f)"
-	);
+	player_->Update(createMatrix);
 }
 
 void GameScene::Draw() {

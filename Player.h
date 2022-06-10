@@ -5,6 +5,7 @@
 #include "DebugText.h"
 #include <assert.h>
 #include "Affine.h"
+#include "WinApp.h"
 
 /// <summary>
 /// 自キャラ
@@ -23,7 +24,7 @@ public:
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update(Affine* createMatrix);
 
 	/// <summary>
 	/// 描画
@@ -31,8 +32,13 @@ public:
 	/// <param name="viewProjection_">ビュープロジェクション（参照渡し）</param>
 	void Draw(ViewProjection &viewProjection_);
 
-	void Move(Input* input_);
+	/// <summary>
+	/// プレイヤーの移動
+	/// </summary>
+	/// <param name="createMatrix">行列更新</param>
+	void Move(Affine* createMatrix);
 private:
+
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル

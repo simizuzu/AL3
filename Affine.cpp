@@ -1,7 +1,4 @@
 #include "Affine.h"
-#include "Matrix4.h"
-#include <math.h>
-#include "WorldTransform.h"
 
 const float PI = 3.141592654f;
 
