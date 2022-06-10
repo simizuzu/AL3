@@ -48,11 +48,6 @@ public:
 	/// 1つ分のワールドトランスフォーム更新関数
 	/// </summary>
 	void WorldTransUpdate(WorldTransform& childWorldtrans);
-
-	/// <summary>
-	/// 複数描画するためのfor文更新処理
-	/// </summary>
-	void OrderUpdate();
 #pragma endregion
 };
 
