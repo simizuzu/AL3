@@ -4,6 +4,9 @@
 #include "Model.h"
 #include "DebugText.h"
 #include <assert.h>
+#include <memory.h>
+#include <List>
+
 #include "Affine.h"
 #include "PlayerBullet.h"
 
@@ -32,20 +35,27 @@ public:
 	/// <param name="viewProjection_">ビュープロジェクション（参照渡し）</param>
 	void Draw(ViewProjection &viewProjection_);
 
-
-	/// <summary>
-	/// プレイヤーの移動
-	/// </summary>
-	/// <param name="createMatrix">行列更新</param>
-	void Move(Affine* affine);
-
 	/// <summary>
 	/// 攻撃
 	/// </summary>
 	void Attack();
 
+	/// <summary>
+	/// 移動限界座標
+	/// </summary>
+	void ScreenOut();
+
 private:
 
+	/// <summary>
+	/// 移動処理
+	/// </summary>
+	void Move();
+		
+	/// <summary>
+	/// 旋回処理
+	/// </summary>
+	void Rotate();
 
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -59,6 +69,6 @@ private:
 	DebugText* debugText_ = nullptr;
 
 	// 弾
-	PlayerBullet* bullet_ = nullptr;
+	std::unique_ptr<PlayerBullet> bullet_;
 };
 

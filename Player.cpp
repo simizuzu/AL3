@@ -16,7 +16,7 @@ void Player::Initailize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 }
 
-void Player::Move(Affine* affine) {
+void Player::Move() {
 
 	// キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };
@@ -41,13 +41,10 @@ void Player::Move(Affine* affine) {
 		move = { 0, -kCharacterSpeed,0 };
 	}
 
-	// 自キャラの旋回
-	if (input_->PushKey(DIK_J)) {
-		worldTransform_.rotation_.y -= 0.5f;
-	}
-	else if (input_->PushKey(DIK_K)) {
-		worldTransform_.rotation_.y += 0.5f;
-	}
+	worldTransform_.translation_ += move;
+}
+
+void Player::ScreenOut() {
 
 	// 移動限界座標
 	const float kMoveLimitX = 35;
@@ -58,27 +55,48 @@ void Player::Move(Affine* affine) {
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
 	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
+}
 
-	worldTransform_.translation_ += move;
-	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
-	worldTransform_.TransferMatrix(); // 行列の転送
+void Player::Rotate() {
+
+	const float roataionSpeed = 0.05f;
+
+	// 自キャラの旋回
+	if (input_->PushKey(DIK_J)) {
+		worldTransform_.rotation_.y -= roataionSpeed;
+	}
+	else if (input_->PushKey(DIK_K)) {
+		worldTransform_.rotation_.y += roataionSpeed;
+	}
 }
 
 void Player::Attack() {
 	if (input_->PushKey(DIK_SPACE)) {
+
+		// 自キャラの座標をコピー
+		Vector3 position = worldTransform_.translation_;
 
 		// 弾を生成し、初期化
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, worldTransform_.translation_);
 
 		// 弾を登録する
-		bullet_ = newBullet;
+		bullet_.reset(newBullet);
 	}
 }
 
 void Player::Update(Affine* affine) {
-	// キャラクター移動・旋回処理
-	Move(affine);
+	// キャラクター移動処理
+	Move();
+	// キャラクター旋回処理
+	Rotate();
+
+	// 移動限界
+	ScreenOut();
+
+	// ワールドトランスフォームの更新
+	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
+	worldTransform_.TransferMatrix(); // 行列の転送
 
 	// キャラクター攻撃処理
 	Attack();
