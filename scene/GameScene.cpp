@@ -6,15 +6,12 @@
 #include <random>
 #include "Affine.h"
 
-// アフィン変換クラス呼び出し
-Affine* worldTransUpdate = nullptr;
-Affine* createMatrix = nullptr;
-
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete affine_;
 	// 自キャラの解放
 	delete player_;
 }
@@ -30,6 +27,9 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	// 3Dモデルの生成
 	model_ = Model::Create();
+
+	// アフィン変換の生成
+	affine_ = new Affine();
 
 	// 自キャラの生成
 	player_ = new Player();
@@ -53,7 +53,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	// 自キャラの更新
-	player_->Update(createMatrix);
+	player_->Update(affine_);
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
 		if (isDebugCameraActive_ == false) {

@@ -11,6 +11,7 @@
 #include "WorldTransform.h"
 #include "DebugCamera.h"
 #include "Player.h"
+#include "Affine.h"
 
 /// <summary>
 /// ゲームシーン
@@ -59,6 +60,9 @@ class GameScene {
 
 	// 自キャラ
 	Player* player_ = nullptr;
+
+	// アフィン変換
+	Affine* affine_ = nullptr;
 
 	// デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;

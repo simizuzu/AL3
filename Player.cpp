@@ -16,7 +16,7 @@ void Player::Initailize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 }
 
-void Player::Move(Affine* createMatrix) {
+void Player::Move(Affine* affine) {
 
 	// キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };
@@ -35,10 +35,18 @@ void Player::Move(Affine* createMatrix) {
 
 	// 上下移動(押した方向で移動ベクトルを変更)
 	if (input_->PushKey(DIK_UP)) {
-		move = {0, kCharacterSpeed,0 };
+		move = { 0, kCharacterSpeed,0 };
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
 		move = { 0, -kCharacterSpeed,0 };
+	}
+
+	// 自キャラの旋回
+	if (input_->PushKey(DIK_J)) {
+		worldTransform_.rotation_.y -= 0.5f;
+	}
+	else if (input_->PushKey(DIK_K)) {
+		worldTransform_.rotation_.y += 0.5f;
 	}
 
 	// 移動限界座標
@@ -52,13 +60,35 @@ void Player::Move(Affine* createMatrix) {
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
 	worldTransform_.translation_ += move;
-	worldTransform_.matWorld_ = createMatrix->CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
 }
 
-void Player::Update(Affine* createMatrix) {
-	Move(createMatrix);
+void Player::Attack() {
+	if (input_->PushKey(DIK_SPACE)) {
 
+		// 弾を生成し、初期化
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_);
+
+		// 弾を登録する
+		bullet_ = newBullet;
+	}
+}
+
+void Player::Update(Affine* affine) {
+	// キャラクター移動・旋回処理
+	Move(affine);
+
+	// キャラクター攻撃処理
+	Attack();
+
+	// 弾更新
+	if (bullet_) { // if (bullet_ != nullptr)
+		bullet_->Update(affine);
+	}
+
+	// デバック文字
 	debugText_->SetPos(50, 150);
 	debugText_->GetInstance()->Printf(
 		"Player(%f,%f,%f)",
@@ -67,7 +97,12 @@ void Player::Update(Affine* createMatrix) {
 		worldTransform_.translation_.z);
 }
 
-void Player::Draw(ViewProjection& viewProjection_) {
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+void Player::Draw(ViewProjection& viewProjection) {
+	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	// 弾描画
+	if (bullet_) {
+		bullet_->Draw(viewProjection);
+	}
 }
 
