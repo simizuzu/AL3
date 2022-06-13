@@ -28,6 +28,7 @@ public:
 	/// <param name="viewProjection">ビュープロジェクション</param>
 	void Draw(const ViewProjection& viewProjection);
 
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
