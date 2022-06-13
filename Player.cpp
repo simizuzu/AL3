@@ -1,5 +1,23 @@
 #include "Player.h"
 
+/// <summary>
+/// ベクトルと行列の掛け算
+/// </summary>
+/// <param name="vec">ベクトル</param>
+/// <param name="mat">行列</param>
+/// <returns>ベクトルと行列の掛け算</returns>
+Vector3 VecMatMul(Vector3& vec, Matrix4& mat) {
+	Vector3 retVec = {};
+
+	retVec.x = vec.x * mat.m[0][0] + vec.y * mat.m[1][0] + vec.z * mat.m[2][0];
+
+	retVec.y = vec.x * mat.m[0][1] + vec.y * mat.m[1][1] + vec.z * mat.m[2][1];
+
+	retVec.z = vec.x * mat.m[0][2] + vec.y * mat.m[1][2] + vec.z * mat.m[2][2];
+
+	return retVec;
+}
+
 void Player::Initailize(Model* model, uint32_t textureHandle) {
 	// NULLポインタチェック
 	assert(model);
@@ -74,11 +92,15 @@ void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 
 		// 自キャラの座標をコピー
-		Vector3 position = worldTransform_.translation_;
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0,0,kBulletSpeed);
+
+		// 速度ベクトルを自機の向きに合わせて回転させる
+		velocity = VecMatMul(velocity, worldTransform_.matWorld_);
 
 		// 弾を生成し、初期化
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique <PlayerBullet>();
-		newBullet->Initialize(model_, position);
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
 		// 弾を登録する
 		bullets_.push_back(std::move(newBullet));
