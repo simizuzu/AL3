@@ -69,6 +69,6 @@ private:
 	DebugText* debugText_ = nullptr;
 
 	// ’e
-	std::unique_ptr<PlayerBullet> bullet_;
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 };
 

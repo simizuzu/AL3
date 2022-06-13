@@ -71,17 +71,17 @@ void Player::Rotate() {
 }
 
 void Player::Attack() {
-	if (input_->PushKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE)) {
 
 		// Ž©ƒLƒƒƒ‰‚ÌÀ•W‚ðƒRƒs[
 		Vector3 position = worldTransform_.translation_;
 
 		// ’e‚ð¶¬‚µA‰Šú‰»
-		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		std::unique_ptr<PlayerBullet> newBullet = std::make_unique <PlayerBullet>();
+		newBullet->Initialize(model_, position);
 
 		// ’e‚ð“o˜^‚·‚é
-		bullet_.reset(newBullet);
+		bullets_.push_back(std::move(newBullet));
 	}
 }
 
@@ -102,8 +102,8 @@ void Player::Update(Affine* affine) {
 	Attack();
 
 	// ’eXV
-	if (bullet_) { // if (bullet_ != nullptr)
-		bullet_->Update(affine);
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
+		bullet->Update(affine);
 	}
 
 	// ƒfƒoƒbƒN•¶Žš
@@ -119,8 +119,8 @@ void Player::Draw(ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
 	// ’e•`‰æ
-	if (bullet_) {
-		bullet_->Draw(viewProjection);
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
+		bullet->Draw(viewProjection);
 	}
 }
 
