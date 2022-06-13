@@ -22,11 +22,6 @@ void PlayerBullet::Update(Affine* affine) {
 
 	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
-
-	// 時間経過でデス
-	if (--deathTimer_ <= 0) {
-		isDead_ = true;
-	}
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection) {
