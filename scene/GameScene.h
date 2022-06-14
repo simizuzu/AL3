@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "DebugText.h"
@@ -11,6 +10,7 @@
 #include "WorldTransform.h"
 #include "DebugCamera.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Affine.h"
 
 /// <summary>
@@ -60,6 +60,9 @@ class GameScene {
 
 	// 自キャラ
 	Player* player_ = nullptr;
+
+	// 敵キャラ
+	Enemy* enemy_ = nullptr;
 
 	// アフィン変換
 	Affine* affine_ = nullptr;

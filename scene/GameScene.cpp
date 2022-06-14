@@ -4,7 +4,6 @@
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
 #include <random>
-#include "Affine.h"
 
 GameScene::GameScene() {}
 
@@ -14,6 +13,8 @@ GameScene::~GameScene() {
 	delete affine_;
 	// 自キャラの解放
 	delete player_;
+	// 敵キャラの解放
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -36,6 +37,11 @@ void GameScene::Initialize() {
 	// 自キャラの初期化
 	player_->Initailize(model_, textureHandle_);
 
+	// 敵キャラの生成
+	enemy_ = new Enemy();
+	// 敵キャラの初期化
+	enemy_->Initailize(model_, Vector3{ 0,2,100 });
+
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 
@@ -54,6 +60,9 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	// 自キャラの更新
 	player_->Update(affine_);
+	// 敵キャラの更新
+	enemy_->Update(affine_);
+
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
 		if (isDebugCameraActive_ == false) {
@@ -109,6 +118,8 @@ void GameScene::Draw() {
 
 	// 自キャラの描画
 	player_->Draw(viewProjection_);
+	// 敵キャラの描画
+	enemy_->Draw(viewProjection_);
 
 	// ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
 	//PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3{ 0,0,0 }, Vector3{ 100,100,100 }, Vector4{ 0xff,0x00,0x00,0xff });

@@ -1,5 +1,11 @@
 #include "Player.h"
 
+/// <summary>
+/// ベクトルと行列の掛け算
+/// </summary>
+/// <param name="vec">ベクトル</param>
+/// <param name="mat">行列</param>
+/// <returns></returns>
 Vector3 VecMatMul(Vector3& vec, Matrix4& mat) {
 	Vector3 retVec = {};
 
