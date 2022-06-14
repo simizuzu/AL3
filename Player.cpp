@@ -1,5 +1,17 @@
 #include "Player.h"
 
+Vector3 VecMatMul(Vector3& vec, Matrix4& mat) {
+	Vector3 retVec = {};
+
+	retVec.x = vec.x * mat.m[0][0] + vec.y * mat.m[1][0] + vec.z * mat.m[2][0];
+
+	retVec.y = vec.x * mat.m[0][1] + vec.y * mat.m[1][1] + vec.z * mat.m[2][1];
+
+	retVec.z = vec.x * mat.m[0][2] + vec.y * mat.m[1][2] + vec.z * mat.m[2][2];
+
+	return retVec;
+}
+
 void Player::Initailize(Model* model, uint32_t textureHandle) {
 	// NULLポインタチェック
 	assert(model);
@@ -26,18 +38,18 @@ void Player::Move() {
 
 	// キーボード入力による移動処理
 	// 横移動(押した方向で移動ベクトルを変更)
-	if (input_->PushKey(DIK_LEFT)) {
+	if (input_->PushKey(DIK_A)) {
 		move = { -kCharacterSpeed,0,0 };
 	}
-	else if (input_->PushKey(DIK_RIGHT)) {
+	else if (input_->PushKey(DIK_D)) {
 		move = { kCharacterSpeed,0,0 };
 	}
 
 	// 上下移動(押した方向で移動ベクトルを変更)
-	if (input_->PushKey(DIK_UP)) {
+	if (input_->PushKey(DIK_W)) {
 		move = { 0, kCharacterSpeed,0 };
 	}
-	else if (input_->PushKey(DIK_DOWN)) {
+	else if (input_->PushKey(DIK_S)) {
 		move = { 0, -kCharacterSpeed,0 };
 	}
 
@@ -62,10 +74,10 @@ void Player::Rotate() {
 	const float roataionSpeed = 0.05f;
 
 	// 自キャラの旋回
-	if (input_->PushKey(DIK_J)) {
+	if (input_->PushKey(DIK_LEFT)) {
 		worldTransform_.rotation_.y -= roataionSpeed;
 	}
-	else if (input_->PushKey(DIK_K)) {
+	else if (input_->PushKey(DIK_RIGHT)) {
 		worldTransform_.rotation_.y += roataionSpeed;
 	}
 }
@@ -74,11 +86,15 @@ void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 
 		// 自キャラの座標をコピー
-		Vector3 position = worldTransform_.translation_;
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
+
+		// 速度ベクトルを自機の向きに合わせて回転させる
+		velocity = VecMatMul(velocity, worldTransform_.matWorld_);
 
 		// 弾を生成し、初期化
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique <PlayerBullet>();
-		newBullet->Initialize(model_, position);
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
 		// 弾を登録する
 		bullets_.push_back(std::move(newBullet));
@@ -86,6 +102,12 @@ void Player::Attack() {
 }
 
 void Player::Update(Affine* affine) {
+
+	// デスフラグの立った球を削除
+	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) {
+		return bullet->IsDead();
+		});
+
 	// キャラクター移動処理
 	Move();
 	// キャラクター旋回処理
