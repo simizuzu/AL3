@@ -2,6 +2,7 @@
 #include "WorldTransform.h"
 #include "Model.h"
 #include <assert.h>
+#include "debugText.h"
 #include "Affine.h"
 
 /// <summary>
@@ -30,21 +31,34 @@ public:
 	/// <param name="viewProjection">ビュープロジェクション</param>
 	void Draw(const ViewProjection& viewProjection);
 
-private:
 
 	/// <summary>
-	/// 敵の移動
+	/// 敵の接近
 	/// </summary>
-	void Move();
+	void ApproechMove();
 
+	/// <summary>
+	/// 敵の離脱
+	/// </summary>
+	void LeaveMove();
+
+private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル
 	Model* model_ = nullptr;
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
+	// デバックテキスト
+	DebugText* debugText_ = nullptr;
 
-	// 速度
-	Vector3 velocity_;
+	// 行動フェーズ
+	enum class Phase {
+		Approach,	// 接近する
+		Leave,		// 離脱する
+	};
+
+	// フェーズ
+	Phase phase_ = Phase::Approach;
 };
 

@@ -135,7 +135,7 @@ void Player::Update(Affine* affine) {
 	}
 
 	// デバック文字
-	debugText_->SetPos(50, 150);
+	debugText_->SetPos(50, 20);
 	debugText_->GetInstance()->Printf(
 		"Player(%f,%f,%f)",
 		worldTransform_.translation_.x,
