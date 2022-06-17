@@ -52,6 +52,15 @@ public:
 	/// </summary>
 	void Fire();
 
+	/// <summary>
+	/// 接近フェーズの初期化
+	/// </summary>
+	void ApproschInitislize();
+
+public:
+	// 発射間隔
+	static int const kFireInterbal = 60;
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -61,8 +70,6 @@ private:
 	uint32_t textureHandle_ = 0u;
 	// デバックテキスト
 	DebugText* debugText_ = nullptr;
-
-	Input* input_ = nullptr;
 
 	// 弾
 	std::list<std::unique_ptr<EnemyBullet>> bullets_;
@@ -75,5 +82,8 @@ private:
 
 	// フェーズ
 	Phase phase_ = Phase::Approach;
+
+	// 発射タイマー
+	int32_t fireTimer = 0;
 };
 

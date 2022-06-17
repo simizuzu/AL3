@@ -7,7 +7,6 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	//	テクスチャ読み込み
 	textureHandle_ = TextureManager::Load("enemy.png");
 
-	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
 	// ワールドトランスフォームの初期化
@@ -15,6 +14,11 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
 
+	ApproschInitislize();
+}
+void Enemy::ApproschInitislize() {
+	// 発射タイマーの初期化
+	fireTimer = kFireInterbal;
 }
 
 void Enemy::ApproechMove() {
@@ -29,6 +33,21 @@ void Enemy::ApproechMove() {
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
 	}
+
+	// 発射タイマーカウントダウン
+	fireTimer--;
+	// 指定時間に達した
+	if (fireTimer < 0) {
+		// 弾を発射
+		Fire();
+		// 発射タイマーを初期化
+		fireTimer = kFireInterbal;
+	}
+
+	debugText_->SetPos(50, 100);
+	debugText_->GetInstance()->Printf(
+		"fierTimer:(%f)", fireTimer
+	);
 }
 
 void Enemy::LeaveMove() {
@@ -42,24 +61,16 @@ void Enemy::LeaveMove() {
 }
 
 void Enemy::Fire() {
-	if (input_->TriggerKey(DIK_G)) {
+	// 自キャラの座標をコピー
+	const float kBulletSpeed = 1.0f;
+	Vector3 velocity(0, 0, kBulletSpeed);
 
-		// 自キャラの座標をコピー
-		const float kBulletSpeed = 2.0f;
-		Vector3 velocity(0, 0, -kBulletSpeed);
+	// 弾を生成し、初期化
+	std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
+	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
-		// 速度ベクトルを自機の向きに合わせて回転させる
-		//velocity = VecMatMul(velocity, worldTransform_.matWorld_);
-
-		// 弾を生成し、初期化
-		std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
-
-		// 弾を登録する
-		bullets_.push_back(std::move(newBullet));
-	}
-
-
+	// 弾を登録する
+	bullets_.push_back(std::move(newBullet));
 }
 
 void Enemy::Update(Affine* affine) {
@@ -75,15 +86,17 @@ void Enemy::Update(Affine* affine) {
 	case Phase::Approach:
 	default:
 		ApproechMove();
-		Fire();
+		//Fire();
 		break;
 	case Phase::Leave:
 		LeaveMove();
 		break;
 	}
 
-
-	Fire();
+	// 弾更新
+	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
+		bullet->Update(affine);
+	}
 
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
@@ -101,4 +114,9 @@ void Enemy::Update(Affine* affine) {
 void Enemy::Draw(const ViewProjection& viewProjection) {
 	// モデルの描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	// 弾描画
+	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
+		bullet->Draw(viewProjection);
+	}
 }
