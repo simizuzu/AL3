@@ -13,6 +13,8 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	worldTransform_.Initialize();
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
+
+	Fire();
 }
 
 void Enemy::ApproechMove() {
@@ -39,12 +41,33 @@ void Enemy::LeaveMove() {
 	worldTransform_.translation_ += leaveMove;
 }
 
+void Enemy::Fire() {
+		// 自キャラの座標をコピー
+	const float kBulletSpeed = 2.0f;
+	Vector3 velocity(0, 0, kBulletSpeed);
+
+	// 弾を生成し、初期化
+	std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
+	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+	newBullet->IsDead();
+
+	// 弾を登録する
+	bullets_.push_back(std::move(newBullet));
+
+	// デバック文字
+	debugText_->SetPos(50, 80);
+	debugText_->GetInstance()->Printf(
+		"Enemybullet:%f",
+		velocity);
+}
+
 void Enemy::Update(Affine* affine) {
 	// switch文でフェーズ分け
 	switch (phase_) {
 	case Phase::Approach:
 	default:
 		ApproechMove();
+		Fire();
 		break;
 	case Phase::Leave:
 		LeaveMove();

@@ -4,30 +4,24 @@
 #include "Model.h"
 #include "DebugText.h"
 #include <assert.h>
-#include <memory.h>
-#include <List>
-
 #include "Affine.h"
-#include "EnemyBullet.h"
 
 /// <summary>
-/// 敵
+/// 敵の弾
 /// </summary>
-class Enemy
+class EnemyBullet
 {
 public:
-
 	/// <summary>
 	/// 初期化
 	/// </summary>
 	/// <param name="model">モデル</param>
-	/// <param name="textureHandle">テクスチャハンドル</param>
-	void Initailize(Model* model, const Vector3& position);
+	/// <param name="position">初期座標</param>
+	void Initialize(Model* model, const Vector3& position, const Vector3& velocity);
 
 	/// <summary>
 	/// 更新
 	/// </summary>
-	/// <param name="affine">アフィン変換</param>
 	void Update(Affine* affine);
 
 	/// <summary>
@@ -36,22 +30,11 @@ public:
 	/// <param name="viewProjection">ビュープロジェクション</param>
 	void Draw(const ViewProjection& viewProjection);
 
-
 	/// <summary>
-	/// 敵の接近
+	/// デスフラグのゲッター
 	/// </summary>
-	void ApproechMove();
-
-	/// <summary>
-	/// 敵の離脱
-	/// </summary>
-	void LeaveMove();
-
-	/// <summary>
-	/// 弾発射
-	/// </summary>
-	void Fire();
-
+	/// <returns>デスフラグ</returns>
+	bool IsDead() const { return isDead_; }
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -62,16 +45,14 @@ private:
 	// デバックテキスト
 	DebugText* debugText_ = nullptr;
 
-	// 弾
-	std::list<std::unique_ptr<EnemyBullet>> bullets_;
+	// 速度
+	Vector3 velocity_;
 
-	// 行動フェーズ
-	enum class Phase {
-		Approach,	// 接近する
-		Leave,		// 離脱する
-	};
-
-	// フェーズ
-	Phase phase_ = Phase::Approach;
+	// 寿命<frm>
+	static const int32_t kLifeTime = 60 * 5;
+	// デスタイマー
+	int32_t deathTimer_ = kLifeTime;
+	// デスフラグ
+	bool isDead_ = false;
 };
 
