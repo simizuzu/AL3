@@ -7,6 +7,7 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	//	テクスチャ読み込み
 	textureHandle_ = TextureManager::Load("enemy.png");
 
+	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
 	// ワールドトランスフォームの初期化
@@ -14,7 +15,6 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
 
-	Fire();
 }
 
 void Enemy::ApproechMove() {
@@ -42,26 +42,34 @@ void Enemy::LeaveMove() {
 }
 
 void Enemy::Fire() {
+	if (input_->TriggerKey(DIK_G)) {
+
 		// 自キャラの座標をコピー
-	const float kBulletSpeed = 2.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
+		const float kBulletSpeed = 2.0f;
+		Vector3 velocity(0, 0, -kBulletSpeed);
 
-	// 弾を生成し、初期化
-	std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
-	newBullet->IsDead();
+		// 速度ベクトルを自機の向きに合わせて回転させる
+		//velocity = VecMatMul(velocity, worldTransform_.matWorld_);
 
-	// 弾を登録する
-	bullets_.push_back(std::move(newBullet));
+		// 弾を生成し、初期化
+		std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
+		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
-	// デバック文字
-	debugText_->SetPos(50, 80);
-	debugText_->GetInstance()->Printf(
-		"Enemybullet:%f",
-		velocity);
+		// 弾を登録する
+		bullets_.push_back(std::move(newBullet));
+	}
+
+
 }
 
 void Enemy::Update(Affine* affine) {
+
+	// デスフラグの立った球を削除
+	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) {
+		return bullet->IsDead();
+		});
+
+
 	// switch文でフェーズ分け
 	switch (phase_) {
 	case Phase::Approach:
@@ -73,6 +81,9 @@ void Enemy::Update(Affine* affine) {
 		LeaveMove();
 		break;
 	}
+
+
+	Fire();
 
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);

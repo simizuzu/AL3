@@ -62,6 +62,8 @@ private:
 	// デバックテキスト
 	DebugText* debugText_ = nullptr;
 
+	Input* input_ = nullptr;
+
 	// 弾
 	std::list<std::unique_ptr<EnemyBullet>> bullets_;
 
