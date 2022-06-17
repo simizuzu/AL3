@@ -15,6 +15,11 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	worldTransform_.translation_ = position;
 }
 
+void (Enemy::* Enemy::spMoveTable[])() = {
+	&Enemy::ApproechMove,	// 要素番号0
+	&Enemy::LeaveMove		// 要素番号1
+};
+
 void Enemy::ApproechMove() {
 	// 速度設定
 	Vector3 approchMove;
@@ -40,16 +45,18 @@ void Enemy::LeaveMove() {
 }
 
 void Enemy::Update(Affine* affine) {
-	// switch文でフェーズ分け
-	switch (phase_) {
-	case Phase::Approach:
-	default:
-		ApproechMove();
-		break;
-	case Phase::Leave:
-		LeaveMove();
-		break;
-	}
+	//// switch文でフェーズ分け
+	//switch (phase_) {
+	//case Phase::Approach:
+	//default:
+	//	ApproechMove();
+	//	break;
+	//case Phase::Leave:
+	//	LeaveMove();
+	//	break;
+	//}
+
+	(this->*spMoveTable[0])();
 
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);

@@ -3,6 +3,7 @@
 #include "Model.h"
 #include <assert.h>
 #include "debugText.h"
+#include <iostream>
 #include "Affine.h"
 
 /// <summary>
@@ -31,7 +32,7 @@ public:
 	/// <param name="viewProjection">ビュープロジェクション</param>
 	void Draw(const ViewProjection& viewProjection);
 
-
+public:
 	/// <summary>
 	/// 敵の接近
 	/// </summary>
@@ -60,5 +61,11 @@ private:
 
 	// フェーズ
 	Phase phase_ = Phase::Approach;
+	 = static_cast<size_t>(phase_);
+
+private:
+	// メンバ関数ポインタ
+	static void (Enemy::* spMoveTable[])();
+	
 };
 
