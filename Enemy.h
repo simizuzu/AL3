@@ -6,9 +6,17 @@
 #include <assert.h>
 #include <memory.h>
 #include <List>
+#include "MathUtility.h"
 
 #include "Affine.h"
 #include "EnemyBullet.h"
+
+using namespace MathUtility;
+
+/// <summary>
+///  自機クラスの前方宣言
+/// </summary>
+class Player;
 
 /// <summary>
 /// 敵
@@ -57,9 +65,20 @@ public:
 	/// </summary>
 	void ApproschInitislize();
 
+	/// <summary>
+	/// 差分ベクトル
+	/// </summary>
+	const void VecDifference();
+
 public:
 	// 発射間隔
 	static int const kFireInterbal = 60;
+
+	// セッター
+	void SetPlayer(Player* player) { player_ = player; }
+
+	// ワールド座標を取得
+	Vector3 GetWorldPosition();
 
 private:
 	// ワールド変換データ
@@ -70,6 +89,8 @@ private:
 	uint32_t textureHandle_ = 0u;
 	// デバックテキスト
 	DebugText* debugText_ = nullptr;
+	// 自キャラ
+	Player* player_ = nullptr;
 
 	// 弾
 	std::list<std::unique_ptr<EnemyBullet>> bullets_;

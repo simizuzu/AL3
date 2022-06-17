@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Player.h"
 
 void Enemy::Initailize(Model* model, const Vector3& position) {
 	assert(model);
@@ -9,16 +10,28 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 
 	debugText_ = DebugText::GetInstance();
 
-	// ワールドトランスフォームの初期化
-	worldTransform_.Initialize();
+
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
+	// ワールドトランスフォームの初期化
+	worldTransform_.Initialize();
 
 	ApproschInitislize();
 }
 void Enemy::ApproschInitislize() {
 	// 発射タイマーの初期化
 	fireTimer = kFireInterbal;
+}
+
+Vector3 Enemy::GetWorldPosition() {
+	// ワールド座標を入れる変数
+	Vector3 worldPos;
+	// ワールド行列の平行移動成分を取得（ワールド座標）
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
 }
 
 void Enemy::ApproechMove() {
@@ -60,10 +73,27 @@ void Enemy::LeaveMove() {
 	worldTransform_.translation_ += leaveMove;
 }
 
+const void Enemy::VecDifference() {
+	
+
+}
+
 void Enemy::Fire() {
+	assert(player_);
+
 	// 自キャラの座標をコピー
 	const float kBulletSpeed = 1.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
+
+	// 自キャラのワールド座標を取得する
+	Vector3 playerPos = player_->GetWorldPosition();
+	// 敵キャラのワールド座標を取得する
+	Vector3 enemyPos = GetWorldPosition();
+	// 差分ベクトル
+	Vector3 velocity = playerPos - enemyPos;
+	// 正規化
+	velocity = MathUtility::Vector3Normalize(velocity);
+	// ベクトルの長さを、速さに合わせる
+	velocity *=  -kBulletSpeed;
 
 	// 弾を生成し、初期化
 	std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();

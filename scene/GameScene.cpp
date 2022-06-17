@@ -40,7 +40,9 @@ void GameScene::Initialize() {
 	// 敵キャラの生成
 	enemy_ = new Enemy();
 	// 敵キャラの初期化
-	enemy_->Initailize(model_, Vector3{ 0,2,100 });
+	enemy_->Initailize(model_, Vector3( 0,2,100 ));
+	// 敵キャラに自キャラのアドレスを渡す
+	enemy_->SetPlayer(player_);
 
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
