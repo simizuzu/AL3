@@ -65,11 +65,6 @@ public:
 	/// </summary>
 	void ApproschInitislize();
 
-	/// <summary>
-	/// 差分ベクトル
-	/// </summary>
-	const void VecDifference();
-
 public:
 	// 発射間隔
 	static int const kFireInterbal = 60;
@@ -80,7 +75,16 @@ public:
 	// ワールド座標を取得
 	Vector3 GetWorldPosition();
 
+	// 弾リストを取得
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
+
 private:
+
+	/// <summary>
+	/// 衝突を検出したら呼び出されるコールバック関数
+	/// </summary>
+	void OnCollision();
+
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル

@@ -28,11 +28,13 @@ void EnemyBullet::Update(Affine* affine) {
 
 	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // s—ñ‚Ì“]‘—
-
-
 }
 
 void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 	// ƒ‚ƒfƒ‹‚Ì•`‰æ
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+}
+
+void EnemyBullet::OnCollision() {
+	isDead_ = true;
 }

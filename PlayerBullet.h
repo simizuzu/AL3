@@ -34,6 +34,12 @@ public:
 	/// <returns>デスフラグ</returns>
 	bool IsDead() const { return isDead_; }
 private:
+
+	/// <summary>
+	/// 衝突を検出したら呼び出されるコールバック関数
+	/// </summary>
+	void OnCollision();
+
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル

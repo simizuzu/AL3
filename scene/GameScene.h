@@ -45,6 +45,9 @@ class GameScene {
 	void Draw();
 
   private: // メンバ変数
+
+	  void CheckAllCollisions();
+
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;

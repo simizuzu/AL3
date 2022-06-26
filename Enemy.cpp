@@ -73,11 +73,6 @@ void Enemy::LeaveMove() {
 	worldTransform_.translation_ += leaveMove;
 }
 
-const void Enemy::VecDifference() {
-	
-
-}
-
 void Enemy::Fire() {
 	assert(player_);
 
@@ -102,6 +97,8 @@ void Enemy::Fire() {
 	// ’e‚ð“o˜^‚·‚é
 	bullets_.push_back(std::move(newBullet));
 }
+
+void Enemy::OnCollision(){}
 
 void Enemy::Update(Affine* affine) {
 
@@ -150,3 +147,4 @@ void Enemy::Draw(const ViewProjection& viewProjection) {
 		bullet->Draw(viewProjection);
 	}
 }
+
