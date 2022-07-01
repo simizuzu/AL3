@@ -35,13 +35,13 @@ public:
 	/// </summary>
 	/// <returns>デスフラグ</returns>
 	bool IsDead() const { return isDead_; }
-private:
 
-	/// <summary>
-	/// 衝突を検出したら呼び出されるコールバック関数
-	/// </summary>
+	//衝突時コールバックを呼び出す
 	void OnCollision();
 
+	// 弾のワールド座標
+	Vector3 GetWorldPosition();
+private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
 	// モデル

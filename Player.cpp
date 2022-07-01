@@ -34,6 +34,8 @@ void Player::Initailize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 }
 
+void Player::OnCollision() {}
+
 Vector3 Player::GetWorldPosition() {
 	// ƒ[ƒ‹ƒhÀ•W‚ğ“ü‚ê‚é•Ï”
 	Vector3 worldPos;
@@ -44,8 +46,6 @@ Vector3 Player::GetWorldPosition() {
 
 	return worldPos;
 }
-
-void Player::OnCollision(){}
 
 void Player::Move() {
 

@@ -48,9 +48,7 @@ public:
 	// ワールド座標を取得
 	Vector3 GetWorldPosition();
 
-	/// <summary>
-	/// 衝突を検出したら呼び出されるコールバック関数
-	/// </summary>
+	//衝突時コールバックを呼び出す
 	void OnCollision();
 
 	// 弾リストを取得
