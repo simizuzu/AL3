@@ -76,11 +76,6 @@ void Enemy::LeaveMove() {
 	worldTransform_.translation_ += leaveMove;
 }
 
-const void Enemy::VecDifference() {
-	
-
-}
-
 void Enemy::Fire() {
 	assert(player_);
 

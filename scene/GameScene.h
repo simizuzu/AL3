@@ -12,6 +12,8 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Affine.h"
+#include "Skydome.h"
+#include <memory>
 
 /// <summary>
 /// ゲームシーン
@@ -77,6 +79,8 @@ class GameScene {
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
+
+	std::unique_ptr<Skydome> modelSkydome;
 
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;

@@ -65,11 +65,6 @@ public:
 	/// </summary>
 	void ApproschInitislize();
 
-	/// <summary>
-	/// 差分ベクトル
-	/// </summary>
-	const void VecDifference();
-
 	//衝突時コールバックを呼び出す
 	void OnCollision();
 

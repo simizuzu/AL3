@@ -44,6 +44,10 @@ void GameScene::Initialize() {
 	// 敵キャラに自キャラのアドレスを渡す
 	enemy_->SetPlayer(player_);
 
+	// 3Dモデルの生成
+	modelSkydome = std::make_unique<Skydome>();
+	modelSkydome->Initialize(affine_);
+
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 
@@ -124,6 +128,7 @@ void GameScene::Draw() {
 	player_->Draw(viewProjection_);
 	// 敵キャラの描画
 	enemy_->Draw(viewProjection_);
+	modelSkydome->Draw(viewProjection_);
 
 	// ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
 	//PrimitiveDrawer::GetInstance()->DrawLine3d(Vector3{ 0,0,0 }, Vector3{ 100,100,100 }, Vector4{ 0xff,0x00,0x00,0xff });
