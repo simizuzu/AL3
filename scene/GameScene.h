@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include <memory>
+
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "DebugText.h"
@@ -9,11 +11,12 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "DebugCamera.h"
+
 #include "Player.h"
 #include "Enemy.h"
 #include "Affine.h"
 #include "Skydome.h"
-#include <memory>
+#include "RailCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -71,16 +74,17 @@ class GameScene {
 	// 敵キャラ
 	Enemy* enemy_ = nullptr;
 
-	// アフィン変換
-	Affine* affine_ = nullptr;
-
 	// デバックカメラ
 	DebugCamera* debugCamera_ = nullptr;
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
-
+	
+	// 天球
 	std::unique_ptr<Skydome> modelSkydome;
+
+	// レールカメラ
+	std::unique_ptr<RailCamera> railCamera_;
 
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;

@@ -4,18 +4,8 @@
 #include "WorldTransform.h"
 #include <math.h>
 
-class Affine
+namespace math
 {
-public:
-	/// <summary>
-	/// コンストラクタ
-	/// </summary>
-	Affine() = default;
-
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
-	~Affine() = default;
 #pragma region 度数法
 	/// <summary>
 	/// 度数
@@ -23,7 +13,16 @@ public:
 	float DegreeMethod(const float& degree);
 #pragma endregion
 
+	// ベクターと行列の掛け算
+	Vector3 VecMatMul2(Vector3& vec, Matrix4& mat);
+
 #pragma region アフィン変換宣言
+
+	/// <summary>
+	/// 単位行列を設定
+	/// </summary>
+	Matrix4 Identity();
+
 	/// <summary>
 	/// スケーリング
 	/// </summary>
@@ -38,7 +37,7 @@ public:
 	/// 回転X
 	/// </summary>
 	Matrix4 RotationX(float angle);
-	
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -66,4 +65,3 @@ public:
 	void WorldTransUpdate(WorldTransform& childWorldtrans);
 #pragma endregion
 };
-

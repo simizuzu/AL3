@@ -27,7 +27,7 @@ public:
 	/// <summary>
 	/// XV
 	/// </summary>
-	void Update(Affine* affine);
+	void Update();
 
 	/// <summary>
 	/// •`‰æ

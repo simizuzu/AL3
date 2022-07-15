@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="vec">ベクトル</param>
 /// <param name="mat">行列</param>
-/// <returns></returns>
+/// <returns>ベクトルと行列の掛け算</returns>
 Vector3 VecMatMul(Vector3& vec, Matrix4& mat) {
 	Vector3 retVec = {};
 
@@ -120,7 +120,7 @@ void Player::Attack() {
 	}
 }
 
-void Player::Update(Affine* affine) {
+void Player::Update() {
 
 	// デスフラグの立った球を削除
 	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) {
@@ -136,7 +136,7 @@ void Player::Update(Affine* affine) {
 	ScreenOut();
 
 	// ワールドトランスフォームの更新
-	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
 
 	// キャラクター攻撃処理
@@ -144,7 +144,7 @@ void Player::Update(Affine* affine) {
 
 	// 弾更新
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
-		bullet->Update(affine);
+		bullet->Update();
 	}
 
 	// デバック文字

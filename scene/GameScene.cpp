@@ -10,7 +10,6 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
-	delete affine_;
 	// 自キャラの解放
 	delete player_;
 	// 敵キャラの解放
@@ -29,9 +28,6 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
-	// アフィン変換の生成
-	affine_ = new Affine();
-
 	// 自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
@@ -46,7 +42,12 @@ void GameScene::Initialize() {
 
 	// 3Dモデルの生成
 	modelSkydome = std::make_unique<Skydome>();
-	modelSkydome->Initialize(affine_);
+	modelSkydome->Initialize();
+
+	//レールカメラの生成
+	railCamera_ = std::make_unique<RailCamera>();
+	//レールカメラの初期化
+	railCamera_->Initialize(Vector3(0.0f, 0.0f, -50.0f), Vector3(0.0f, 0.0f, 0.0f));
 
 	// ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -65,9 +66,15 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	// 自キャラの更新
-	player_->Update(affine_);
+	player_->Update();
 	// 敵キャラの更新
-	enemy_->Update(affine_);
+	enemy_->Update();
+	// レールカメラの更新
+	railCamera_->Update();
+	viewProjection_.matView = railCamera_->GetViewProjection().matView;
+	viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
+	// ビュープロジェクションの転送
+	viewProjection_.TransferMatrix();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
@@ -161,6 +168,11 @@ void GameScene::CheckAllCollision() {
 	float posAR = 1.0f;
 	float posBR = 1.0f;
 
+	// // 座標AとBの距離x, y, z
+	float dx;
+	float dy;
+	float dz;
+
 	// 自弾リストの取得
 	const std::list < std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
 	// 敵弾リストの取得
@@ -177,9 +189,9 @@ void GameScene::CheckAllCollision() {
 		posB = bullet->GetWorldPosition();
 
 		// 座標AとBの距離を求める
-		float dx = posB.x - posA.x;
-		float dy = posB.y - posA.y;
-		float dz = posB.z - posA.z;
+		dx = posB.x - posA.x;
+		dy = posB.y - posA.y;
+		dz = posB.z - posA.z;
 
 		float distance = dx * dx + dy * dy + dz * dz;
 		float radius = (posAR + posBR) * (posAR + posBR);
@@ -206,9 +218,9 @@ void GameScene::CheckAllCollision() {
 		posB = bullet->GetWorldPosition();
 
 		// 座標AとBの距離を求める
-		float dx = posB.x - posA.x;
-		float dy = posB.y - posA.y;
-		float dz = posB.z - posA.z;
+		dx = posB.x - posA.x;
+		dy = posB.y - posA.y;
+		dz = posB.z - posA.z;
 
 		float distance = dx * dx + dy * dy + dz * dz;
 		float radius = (posAR + posBR) * (posAR + posBR);
@@ -234,9 +246,9 @@ void GameScene::CheckAllCollision() {
 			posB = bulletB->GetWorldPosition();
 
 			// 座標AとBの距離を求める
-			float dx = posB.x - posA.x;
-			float dy = posB.y - posA.y;
-			float dz = posB.z - posA.z;
+			dx = posB.x - posA.x;
+			dy = posB.y - posA.y;
+			dz = posB.z - posA.z;
 
 			float distance = dx * dx + dy * dy + dz * dz;
 			float radius = (posAR + posBR) * (posAR + posBR);

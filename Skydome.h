@@ -6,6 +6,9 @@
 #include <memory>
 #include <cassert>
 
+/// <summary>
+/// “V‹…
+/// </summary>
 class Skydome
 {
 public:
@@ -13,7 +16,7 @@ public:
 	/// <summary>
 	/// ‰Šú‰»
 	/// </summary>
-	void Initialize(Affine* affine);
+	void Initialize();
 
 	/// <summary>
 	/// XV

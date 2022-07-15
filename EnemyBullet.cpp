@@ -21,7 +21,7 @@ void EnemyBullet::OnCollision() {
 	isDead_ = true;
 }
 
-void EnemyBullet::Update(Affine* affine) {
+void EnemyBullet::Update() {
 	// 座標を移動させる（1フレーム分の移動量を足し込む）
 	worldTransform_.translation_ -= velocity_;
 
@@ -30,7 +30,7 @@ void EnemyBullet::Update(Affine* affine) {
 		isDead_ = true;
 	}
 
-	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
 }
 

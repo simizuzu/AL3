@@ -87,7 +87,7 @@ void Enemy::Fire() {
 	// 敵キャラのワールド座標を取得する
 	Vector3 enemyPos = GetWorldPosition();
 	// 差分ベクトル
-	Vector3 velocity = playerPos - enemyPos;
+	Vector3 velocity =  playerPos - enemyPos;
 	// 正規化
 	velocity = MathUtility::Vector3Normalize(velocity);
 	// ベクトルの長さを、速さに合わせる
@@ -101,7 +101,7 @@ void Enemy::Fire() {
 	bullets_.push_back(std::move(newBullet));
 }
 
-void Enemy::Update(Affine* affine) {
+void Enemy::Update() {
 
 	// デスフラグの立った球を削除
 	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) {
@@ -123,11 +123,11 @@ void Enemy::Update(Affine* affine) {
 
 	// 弾更新
 	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
-		bullet->Update(affine);
+		bullet->Update();
 	}
 
 	// ワールドトランスフォームの更新
-	worldTransform_.matWorld_ = affine->CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
 
 	// デバック文字

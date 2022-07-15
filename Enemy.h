@@ -36,7 +36,7 @@ public:
 	/// 更新
 	/// </summary>
 	/// <param name="affine">アフィン変換</param>
-	void Update(Affine* affine);
+	void Update();
 
 	/// <summary>
 	/// 描画
