@@ -152,7 +152,7 @@ namespace math {
 	/// </summary>
 	/// <param name="worldTransform">スケール, 回転, 平行移動</param>
 	/// <returns>ワールド行列</returns>
-	static Matrix4 CreateMatrix(const WorldTransform& worldTransform)
+	Matrix4 UpdateMatrix(const WorldTransform& worldTransform)
 	{
 		Matrix4 matWorld;
 
@@ -163,6 +163,10 @@ namespace math {
 		matWorld *= RotationY(worldTransform.rotation_.y);
 		matWorld *= Translation(worldTransform.translation_);
 
+		if (worldTransform.parent_ != nullptr)
+		{
+			matWorld *= worldTransform.parent_->matWorld_;
+		}
 		return matWorld;
 	}
 
@@ -172,9 +176,8 @@ namespace math {
 	/// <param name="childWorldtrans">子のworldTransform</param>
 	void WorldTransUpdate(WorldTransform& childWorldtrans)
 	{
-		childWorldtrans.matWorld_ = CreateMatrix(childWorldtrans); // 合成した行列の計算
+		childWorldtrans.matWorld_ = UpdateMatrix(childWorldtrans); // 合成した行列の計算
 		childWorldtrans.matWorld_ *= childWorldtrans.parent_->matWorld_; // parent_のワールド行列の掛け算代入
 		childWorldtrans.TransferMatrix(); // 行列の転送
 	}
-
 }

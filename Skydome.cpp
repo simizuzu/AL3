@@ -6,7 +6,7 @@ void Skydome::Initialize() {
 	// スケールを設定
 	worldTransform_.scale_ = { 250.0f,250.0f,250.0f };
 	// スケーリング行列
-	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
 	// 行列の転送
 	worldTransform_.TransferMatrix();
 

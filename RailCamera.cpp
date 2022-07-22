@@ -16,11 +16,11 @@ void RailCamera::Initialize(const Vector3& position, const Vector3& rotation) {
 
 void RailCamera::Update() {
 	using namespace MathUtility;
-
+	120;
 	// ワールドトランスフォームの座標の数値を加算
 	worldTransform_.translation_ += Vector3(0, 0, 0.1f);
 	// ワールドトランスフォームを更新
-	math::WorldTransUpdate(worldTransform_);
+	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
 	// ワールド行列の平行移動成分を取得
 	viewProjection_.eye.x = worldTransform_.matWorld_.m[3][0];
 	viewProjection_.eye.y = worldTransform_.matWorld_.m[3][1];
@@ -42,7 +42,7 @@ void RailCamera::Update() {
 	viewProjection_.UpdateMatrix();
 
 	// デバック文字
-	debugText_->SetPos(20, 100);
+	debugText_->SetPos(20, 120);
 	debugText_->GetInstance()->Printf(
 		"RailCamera Pos:(%f,%f,%f)",
 		viewProjection_.eye.x,

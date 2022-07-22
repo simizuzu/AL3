@@ -41,7 +41,9 @@ public:
 	const ViewProjection& GetViewProjection() { return viewProjection_; }
 
 	// ワールド行列を取得
-	const WorldTransform& GetWorldMatirx() const { return worldTransform_; }
+	WorldTransform* GetWorldMatirx() { return &worldTransform_; }
+
+
 
 private:
 	// ワールド変換データ

@@ -10,7 +10,6 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
-	// 自キャラの解放
 	delete player_;
 	// 敵キャラの解放
 	delete enemy_;
@@ -28,10 +27,10 @@ void GameScene::Initialize() {
 	// 3Dモデルの生成
 	model_ = Model::Create();
 
+	// ビュープロジェクションの初期化
+	viewProjection_.Initialize();
 	// 自キャラの生成
 	player_ = new Player();
-	// 自キャラの初期化
-	player_->Initailize(model_, textureHandle_);
 
 	// 敵キャラの生成
 	enemy_ = new Enemy();
@@ -49,8 +48,8 @@ void GameScene::Initialize() {
 	//レールカメラの初期化
 	railCamera_->Initialize(Vector3(0.0f, 0.0f, -50.0f), Vector3(0.0f, 0.0f, 0.0f));
 
-	// ビュープロジェクションの初期化
-	viewProjection_.Initialize();
+	// 自キャラの初期化
+	player_->Initailize(model_, textureHandle_, railCamera_->GetWorldMatirx(),Vector3(0.0f,0.0f,50.0f));
 
 	//デバックカメラの生成
 	debugCamera_ = new DebugCamera(1280, 720);
@@ -65,16 +64,17 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Update() {
-	// 自キャラの更新
-	player_->Update();
-	// 敵キャラの更新
-	enemy_->Update();
 	// レールカメラの更新
 	railCamera_->Update();
 	viewProjection_.matView = railCamera_->GetViewProjection().matView;
 	viewProjection_.matProjection = railCamera_->GetViewProjection().matProjection;
 	// ビュープロジェクションの転送
 	viewProjection_.TransferMatrix();
+	// 自キャラの更新
+	player_->Update();
+	// 敵キャラの更新
+	enemy_->Update();
+
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
@@ -88,16 +88,16 @@ void GameScene::Update() {
 #endif // _DEBUG
 
 	// カメラの処理
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
-		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
-		viewProjection_.TransferMatrix();
-	}
-	else {
-		viewProjection_.UpdateMatrix();
-		viewProjection_.TransferMatrix();
-	}
+	//if (isDebugCameraActive_) {
+	//	debugCamera_->Update();
+	//	viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+	//	viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+	//	viewProjection_.TransferMatrix();
+	//}
+	//else {
+	//	viewProjection_.UpdateMatrix();
+	//	viewProjection_.TransferMatrix();
+	//}
 
 	CheckAllCollision();
 }

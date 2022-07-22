@@ -10,7 +10,6 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 
 	debugText_ = DebugText::GetInstance();
 
-
 	// 引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
 	// ワールドトランスフォームの初期化
@@ -127,7 +126,7 @@ void Enemy::Update() {
 	}
 
 	// ワールドトランスフォームの更新
-	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
 
 	// デバック文字

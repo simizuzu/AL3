@@ -57,7 +57,7 @@ namespace math
 	/// </summary>
 	/// <param name="worldTransform">ワールドトランスフォーム</param>
 	/// <returns></returns>
-	Matrix4 CreateMatrix(const WorldTransform& worldTransform);
+	Matrix4 UpdateMatrix(const WorldTransform& worldTransform);
 
 	/// <summary>
 	/// 1つ分のワールドトランスフォーム更新関数

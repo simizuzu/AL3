@@ -28,7 +28,7 @@ void PlayerBullet::Update() {
 		isDead_ = true;
 	}
 
-	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // çsóÒÇÃì]ëó
 }
 

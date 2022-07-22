@@ -18,19 +18,21 @@ Vector3 VecMatMul(Vector3& vec, Matrix4& mat) {
 	return retVec;
 }
 
-void Player::Initailize(Model* model, uint32_t textureHandle) {
+void Player::Initailize(Model* model, uint32_t textureHandle,WorldTransform* parent, const Vector3& position) {
 	// NULLポインタチェック
 	assert(model);
 
 	// 引数として受け取ったデータをメンバ変数に記録する
 	model_ = model;
 	textureHandle_ = textureHandle;
+	worldTransform_.parent_ = parent;
 
 	// シングルトンインスタンスを取得する
 	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
 	// ワールドトランスフォームの初期化
+	worldTransform_.translation_ = position;
 	worldTransform_.Initialize();
 }
 
@@ -105,6 +107,9 @@ void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 
 		// 自キャラの座標をコピー
+		Vector3 position_ = GetWorldPosition();
+
+		// 弾の速度
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
@@ -113,7 +118,7 @@ void Player::Attack() {
 
 		// 弾を生成し、初期化
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique <PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+		newBullet->Initialize(model_, position_, velocity);
 
 		// 弾を登録する
 		bullets_.push_back(std::move(newBullet));
@@ -136,7 +141,7 @@ void Player::Update() {
 	ScreenOut();
 
 	// ワールドトランスフォームの更新
-	worldTransform_.matWorld_ = math::CreateMatrix(worldTransform_);
+	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
 	worldTransform_.TransferMatrix(); // 行列の転送
 
 	// キャラクター攻撃処理
