@@ -16,7 +16,7 @@ void RailCamera::Initialize(const Vector3& position, const Vector3& rotation) {
 
 void RailCamera::Update() {
 	using namespace MathUtility;
-	120;
+	
 	// ワールドトランスフォームの座標の数値を加算
 	worldTransform_.translation_ += Vector3(0, 0, 0.1f);
 	// ワールドトランスフォームを更新
