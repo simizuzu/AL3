@@ -95,18 +95,9 @@ void Enemy::Fire() {
 	// 弾を生成し、初期化
 	std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
-
-	// 弾を登録する
-	bullets_.push_back(std::move(newBullet));
 }
 
 void Enemy::Update() {
-
-	// デスフラグの立った球を削除
-	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) {
-		return bullet->IsDead();
-		});
-
 
 	// switch文でフェーズ分け
 	switch (phase_) {
@@ -120,10 +111,6 @@ void Enemy::Update() {
 		break;
 	}
 
-	// 弾更新
-	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
-		bullet->Update();
-	}
 
 	// ワールドトランスフォームの更新
 	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
@@ -141,9 +128,4 @@ void Enemy::Update() {
 void Enemy::Draw(const ViewProjection& viewProjection) {
 	// モデルの描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
-	// 弾描画
-	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
-		bullet->Draw(viewProjection);
-	}
 }

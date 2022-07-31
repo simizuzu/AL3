@@ -54,6 +54,15 @@ class GameScene {
 	/// </summary>
 	void CheckAllCollision();
 
+	/// <summary>
+	/// 敵弾を追加する
+	/// </summary>
+	/// <param name="enmyBullet">敵弾</param>
+	void AddEnemyBullet(std::unique_ptr<EnemyBullet>& enemyBullet);
+
+	// 弾リストを取得
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return enemyBullets_; }
+
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -85,6 +94,9 @@ class GameScene {
 
 	// レールカメラ
 	std::unique_ptr<RailCamera> railCamera_;
+
+	// 弾
+	std::list<std::unique_ptr<EnemyBullet>> enemyBullets_;
 
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;

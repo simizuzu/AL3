@@ -11,6 +11,8 @@
 #include "Affine.h"
 #include "EnemyBullet.h"
 
+class GameScene;
+
 using namespace MathUtility;
 
 /// <summary>
@@ -44,7 +46,6 @@ public:
 	/// <param name="viewProjection">ビュープロジェクション</param>
 	void Draw(const ViewProjection& viewProjection);
 
-
 	/// <summary>
 	/// 敵の接近
 	/// </summary>
@@ -68,15 +69,14 @@ public:
 	//衝突時コールバックを呼び出す
 	void OnCollision();
 
-	// 弾リストを取得
-	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
-
 public:
 	// 発射間隔
 	static int const kFireInterbal = 60;
 
 	// セッター
 	void SetPlayer(Player* player) { player_ = player; }
+
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
 	// ワールド座標を取得
 	Vector3 GetWorldPosition();
@@ -92,9 +92,8 @@ private:
 	DebugText* debugText_ = nullptr;
 	// 自キャラ
 	Player* player_ = nullptr;
-
-	// 弾
-	std::list<std::unique_ptr<EnemyBullet>> bullets_;
+	// ゲームシーン
+	GameScene* gameScene_ = nullptr;
 
 	// 行動フェーズ
 	enum class Phase {
