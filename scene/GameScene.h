@@ -9,17 +9,18 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include "DebugCamera.h"
+#include"DebugCamera.h"
+
 
 /// <summary>
 /// ゲームシーン
 /// </summary>
 class GameScene {
 
-  public: // メンバ関数
-	/// <summary>
-	/// コンストクラタ
-	/// </summary>
+public: // メンバ関数
+  /// <summary>
+  /// コンストクラタ
+  /// </summary>
 	GameScene();
 
 	/// <summary>
@@ -42,29 +43,29 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
-  private: // メンバ変数
+private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
 
-	// テクスチャハンドル
-	uint32_t textureHandle_ = 0;
-	// 3Dモデル
-	Model* model_ = nullptr;
-
-	// ワールドトランスフォーム
-	WorldTransform worldTransforms_[100];
-	// ビュープロジェクション
-	ViewProjection viewProjection_;
-
-	// デバックカメラ
+	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 
-	//カメラ上方向の角度
-	float viewAngle = 0.0f;
+	//デバッグカメラ有効
+	bool isDebugCameraActive_ = false;
 
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	//テクスチャハンドル
+	uint32_t textureHandle_ = 0;
+
+	// 3dモデル
+	Model* model_ = nullptr;
+
+	//ワールドトランスフォーム
+	WorldTransform worldTransform_[9][9];
+	//ビュープロジェクション
+	ViewProjection viewProjection_;
 };
