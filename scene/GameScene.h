@@ -52,6 +52,7 @@ class GameScene {
 	DebugText* debugText_ = nullptr;
 	bool spacekey = false;
 
+
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 
