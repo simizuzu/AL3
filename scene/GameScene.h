@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "Audio.h"
-#include "DirectXCommon.h"
 #include "DebugText.h"
+#include "DirectXCommon.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
@@ -16,10 +16,10 @@
 /// </summary>
 class GameScene {
 
-  public: // メンバ関数
-	/// <summary>
-	/// コンストクラタ
-	/// </summary>
+public: // メンバ関数
+  /// <summary>
+  /// コンストクラタ
+  /// </summary>
 	GameScene();
 
 	/// <summary>
@@ -42,10 +42,7 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
-	//カメラ上方向の角度
-	float viewAngle = 0.0f;
-	
-  private: // メンバ変数
+private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
@@ -53,15 +50,15 @@ class GameScene {
 
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
-
-	// 3Dモデル
+	// 3dモデル
 	Model* model_ = nullptr;
-
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_[100];
+	WorldTransform worldTransform_;
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
-
+	//カメラ上方向の角度
+	float viewAngle = 0.0f;
+	float length = 10.0f;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
