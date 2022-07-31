@@ -50,7 +50,6 @@ class GameScene {
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
-	bool spacekey = false;
 
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
@@ -59,10 +58,9 @@ class GameScene {
 	Model* model_ = nullptr;
 
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_;
+	WorldTransform worldTransform_[100];
 	//ビュープロジェクション
-	int num = 0;
-	ViewProjection viewProjection_[3];
+	ViewProjection viewProjection_;
 
 	/// <summary>
 	/// ゲームシーン用
