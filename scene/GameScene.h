@@ -48,6 +48,7 @@ private: // メンバ変数
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
 	Sprite* sprite_ = nullptr;
+	Sprite* sprite2_ = nullptr;
 
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
@@ -56,6 +57,7 @@ private: // メンバ変数
 	bool isDebugCameraActive_ = false;
 	//ズーム/アウト切り替え
 	bool zoomFlag = false;
+	bool scopeFlag = false;
 
 	/// <summary>
 	/// ゲームシーン用
@@ -63,6 +65,7 @@ private: // メンバ変数
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
 	uint32_t textureHandleSprite_ = 0;
+	uint32_t textureHandleSprite2_ = 0;
 
 	// 3dモデル
 	Model* model_ = nullptr;

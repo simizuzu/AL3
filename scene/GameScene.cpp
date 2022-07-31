@@ -26,9 +26,11 @@ void GameScene::Initialize() {
 	//ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	textureHandleSprite_ = TextureManager::Load("reticle.png");
+	textureHandleSprite2_ = TextureManager::Load("scope.png");
 
 	//スプライトの生成
 	sprite_ = Sprite::Create(textureHandleSprite_, { 576,296 });
+	sprite2_ = Sprite::Create(textureHandleSprite2_, { 0,0 });
 
 
 	//3Dモデルの生成
@@ -100,15 +102,7 @@ void GameScene::Initialize() {
 	//上方向ベクトルを指定
 	viewProjection_.up = { 0.0f, 1.0f, 0.0f };
 
-	viewProjection_.fovAngleY = 0.6981317f;
-
-	//デバッグカメラ生成
-	debugCamera_ = new DebugCamera(1280, 720);
-
-	//軸方向表示の表示を有効にする
-	AxisIndicator::GetInstance()->SetVisible(true);
-	//軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
+	viewProjection_.fovAngleY = 3.141592654f / 2;
 }
 
 void GameScene::Update() {
@@ -147,14 +141,24 @@ void GameScene::Update() {
 		viewProjection_.target.y -= 0.2f;
 	}
 
-	if (input_->PushKey(DIK_SPACE)) {
-		viewProjection_.fovAngleY -= 0.05f;
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (scopeFlag == true) { scopeFlag = false; }
+		else { scopeFlag = true; }
 	}
-	else { viewProjection_.fovAngleY += 0.05f; }
 
-	if (viewProjection_.fovAngleY < 0.6981317f / 2) { viewProjection_.fovAngleY = 0.6981317f / 2; }
-	if (viewProjection_.fovAngleY > 0.6981317f) { viewProjection_.fovAngleY = 0.6981317f; }
+	if (scopeFlag == true) {
+		if (input_->TriggerKey(DIK_W)) { zoomFlag = true; }
+		if (input_->TriggerKey(DIK_S)) { zoomFlag = false; }
 
+		if (zoomFlag == true) { viewProjection_.fovAngleY -= 0.05f; }
+		else { viewProjection_.fovAngleY += 0.05f; }
+		if (viewProjection_.fovAngleY < 3.141592654f / 10.6f) { viewProjection_.fovAngleY = 3.141592654f / 10.6f; }
+		if (viewProjection_.fovAngleY > 3.141592654f / 5.398f) { viewProjection_.fovAngleY = 3.141592654f / 5.398f; }
+	}
+	else {
+		viewProjection_.fovAngleY = 3.141592654f / 2;//初期値
+		zoomFlag = false;
+	}
 
 	//デバック表示
 	debugText_->SetPos(50, 50);
@@ -167,6 +171,11 @@ void GameScene::Update() {
 	debugText_->Printf("fovAngleY(Degree):%f", ChangeDegree(viewProjection_.fovAngleY));
 	debugText_->SetPos(50, 130);
 	debugText_->Printf("nearZ:%f", viewProjection_.nearZ);
+	debugText_->SetPos(1000, 90);
+	if (scopeFlag == true) {
+		if (zoomFlag == false) { debugText_->Printf("x4"); }
+		if (zoomFlag == true) { debugText_->Printf("x8"); }
+	}
 }
 
 void GameScene::Draw() {
@@ -213,7 +222,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	if (input_->PushKey(DIK_SPACE)) { sprite_->Draw(); }
+	if (scopeFlag == true) { sprite_->Draw(); sprite2_->Draw(); }
 
 
 	// デバッグテキストの描画
