@@ -56,10 +56,11 @@ private: // メンバ変数
 	//ワールドトランスフォーム
 	WorldTransform worldTransform_[3];
 	//ビュープロジェクション
-	ViewProjection viewProjection_[3];
+	ViewProjection viewProjection_;
 	int num = 0;
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
+	bool flag = false;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
