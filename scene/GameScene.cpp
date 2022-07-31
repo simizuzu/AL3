@@ -176,18 +176,16 @@ void GameScene::Update() {
 		move = { moveSpeed,0.0f ,0.0f };
 	}
 
-	worldTransforms_[PartID::kRoot].translation_ += move;
-	MatrixCalculation(worldTransforms_[PartID::kRoot]);
-	worldTransforms_[PartID::kRoot].TransferMatrix();
-	//上半身回転処理
-	//回転の早さ
-	const float rotSpeed = 0.05f;
-
-	if (worldTransforms_[PartID::kArmL].rotation_.x < -0.8f) {
-		rotFlag = true;
-	}if (worldTransforms_[PartID::kArmL].rotation_.x > 0.8f) {
-		rotFlag = false;
+	if (jumpFlag == false && input_->TriggerKey(DIK_SPACE)) {
+		jumpFlag = true;
+		gravity = -0.45f;
 	}
+
+	gravity += 0.02f;
+	move.y -= gravity;
+
+	//回転の早さ
+	float rotSpeed = 0.05f;
 
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_A)) {
@@ -196,7 +194,31 @@ void GameScene::Update() {
 		worldTransforms_[PartID::kRoot].rotation_.y += rotSpeed;
 	}
 
+	worldTransforms_[PartID::kRoot].translation_ += move;
+
+	if (worldTransforms_[PartID::kRoot].translation_.y <= 0.0f) {
+		worldTransforms_[PartID::kRoot].translation_.y = 0.0f;
+		jumpFlag = false;
+	}
+
+	MatrixCalculation(worldTransforms_[PartID::kRoot]);
+	worldTransforms_[PartID::kRoot].TransferMatrix();
+	//上半身回転処理
+
+	if (worldTransforms_[PartID::kArmL].rotation_.x < -0.8f) {
+		rotFlag = true;
+	}if (worldTransforms_[PartID::kArmL].rotation_.x > 0.8f) {
+		rotFlag = false;
+	}
+
+	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_W)) {
+		if (input_->PushKey(DIK_LSHIFT)) {
+			rotSpeed = 2 * rotSpeed;
+		}
+		else {
+			rotSpeed = 0.05f;
+		}
 		if (rotFlag == false) {
 			worldTransforms_[PartID::kArmL].rotation_.x -= rotSpeed;
 			worldTransforms_[PartID::kArmR].rotation_.x += rotSpeed;
@@ -211,6 +233,12 @@ void GameScene::Update() {
 		}
 	}
 	else {
+		if (input_->PushKey(DIK_LSHIFT)) {
+			rotSpeed = 2 * rotSpeed;
+		}
+		else {
+			rotSpeed = 0.05f;
+		}
 		if (worldTransforms_[PartID::kArmL].rotation_.x <= 0.0f) {
 			worldTransforms_[PartID::kArmL].rotation_.x += rotSpeed;
 			worldTransforms_[PartID::kArmR].rotation_.x -= rotSpeed;
