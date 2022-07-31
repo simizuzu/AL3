@@ -162,10 +162,24 @@ void GameScene::Update() {
 	//回転の早さ
 	const float rotSpeed = 0.05f;
 
-	worldTransforms_[PartID::kArmL].rotation_.x -= 2 * rotSpeed;
-	worldTransforms_[PartID::kArmR].rotation_.x += 2 * rotSpeed;
-	worldTransforms_[PartID::kLegL].rotation_.x += 2 * rotSpeed;
-	worldTransforms_[PartID::kLegR].rotation_.x -= 2 * rotSpeed;
+	if (rotFlag == false) {
+		worldTransforms_[PartID::kArmL].rotation_.x -= rotSpeed;
+		worldTransforms_[PartID::kArmR].rotation_.x += rotSpeed;
+		worldTransforms_[PartID::kLegL].rotation_.x += rotSpeed;
+		worldTransforms_[PartID::kLegR].rotation_.x -= rotSpeed;
+	}
+	else {
+		worldTransforms_[PartID::kArmL].rotation_.x += rotSpeed;
+		worldTransforms_[PartID::kArmR].rotation_.x -= rotSpeed;
+		worldTransforms_[PartID::kLegL].rotation_.x -= rotSpeed;
+		worldTransforms_[PartID::kLegR].rotation_.x += rotSpeed;
+	}
+
+	if (worldTransforms_[PartID::kArmL].rotation_.x < -0.8f) {
+		rotFlag = true;
+	}if (worldTransforms_[PartID::kArmL].rotation_.x > 0.8f) {
+		rotFlag = false;
+	}
 
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_A)) {
