@@ -13,7 +13,6 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
-	delete sprite_;
 }
 
 void GameScene::Initialize() {
@@ -22,28 +21,6 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
-
-	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
-	textureHandleSprite_ = TextureManager::Load("reticle.png");
-	textureHandleSprite2_ = TextureManager::Load("scope.png");
-
-	//スプライトの生成
-	sprite_ = Sprite::Create(textureHandleSprite_, { 576,296 });
-	sprite2_ = Sprite::Create(textureHandleSprite2_, { 0,0 });
-
-
-	//3Dモデルの生成
-	model_ = Model::Create();
-
-	//スケーリング行列を宣言
-	Matrix4 matScale;
-	//合成用回転行列を宣言
-	Matrix4 matRot;
-	//各軸用回転行列を宣言
-	Matrix4 matRotX, matRotY, matRotZ;
-	//平行移動行列宣言
-	Matrix4 matTrans = Matrix4Identity();
 
 	//乱数シード生成器
 	std::random_device seed_gen;
@@ -58,51 +35,89 @@ void GameScene::Initialize() {
 	//乱数エンジンを渡し、指定範囲からランダムな数値を得る
 	float matTranslation = coordinate(engine);
 
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
+	//ファイル名を指定してテクスチャを読み込む
+	textureHandle_ = TextureManager::Load("mario.jpg");
+	//3Dモデルの生成
+	model_ = Model::Create();
 
-			//ワールドトランスフォーム初期化
-			worldTransform_[i][j].Initialize();
+	//スケーリング行列を宣言
+	Matrix4 matScale;
+	//合成用回転行列を宣言
+	Matrix4 matRot;
+	//各軸用回転行列を宣言
+	Matrix4 matRotX, matRotY, matRotZ;
+	//平行移動行列宣言
+	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
-			//X,Y,Z方向のスケーリングを設定
-			SetMatScale(matScale, { 1.0f,1.0f,1.0f });
-			//X,Y,Z軸周りの回転角を設定
-			SetMatRotX(matRotX, radian(engine));
-			SetMatRotY(matRotY, radian(engine));
-			SetMatRotZ(matRotZ, radian(engine));
-			//X,Y,Z軸周りの平行移動(座標)を設定
-			SetMatTrans(matTrans, { coordinate(engine) ,coordinate(engine) ,coordinate(engine) });
+	//キャラクター大元
+	worldTransforms_[PartID::kRoot].Initialize();
+	//脊椎
+	worldTransforms_[PartID::kSpine].translation_ = { 0, 5.0f, 0 };
+	worldTransforms_[PartID::kSpine].rotation_ = { 0, 0.5f, 0 };
+	worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
+	worldTransforms_[PartID::kSpine].Initialize();
 
-			//worldTransform_.matWorld_に単位行列を代入する
-			worldTransform_[i][j].matWorld_.m[0][0] = 1.0f;
-			worldTransform_[i][j].matWorld_.m[1][1] = 1.0f;
-			worldTransform_[i][j].matWorld_.m[2][2] = 1.0f;
-			worldTransform_[i][j].matWorld_.m[3][3] = 1.0f;
+	//上半身
+	//Chest
+	worldTransforms_[PartID::kChest].translation_ = { 0, 0, 0 };
+	worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
+	worldTransforms_[PartID::kChest].Initialize();
 
-			//行列の合成
-			//各軸の回転行列を合成
-			matRot = matRotZ * matRotX * matRotY;
-			//worldTransform_.matWorld_にmatScaleを掛け算して代入
-			worldTransform_[i][j].matWorld_ = matScale * matRot * matTrans;
+	//Head
+	worldTransforms_[PartID::kHead].translation_ = { 0, 3.0f, 0 };
+	worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
+	worldTransforms_[PartID::kHead].Initialize();
 
-			//行列の転送
-			worldTransform_[i][j].TransferMatrix();
-		}
-	}
+	//ArmL
+	worldTransforms_[PartID::kArmL].translation_ = { -3.0f, 0, 0 };
+	worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
+	worldTransforms_[PartID::kArmL].Initialize();
+	//ArmR
+	worldTransforms_[PartID::kArmR].translation_ = { 3.0f, 0, 0 };
+	worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
+	worldTransforms_[PartID::kArmR].Initialize();
+
+	//下半身
+	//Hip
+	worldTransforms_[PartID::kHip].translation_ = { 0, -3.0f, 0 };
+	worldTransforms_[PartID::kHip].parent_ = &worldTransforms_[PartID::kSpine];
+	worldTransforms_[PartID::kHip].Initialize();
+
+	//LegL
+	worldTransforms_[PartID::kLegL].translation_ = { -3.0f, -3.0f, 0 };
+	worldTransforms_[PartID::kLegL].parent_ = &worldTransforms_[PartID::kHip];
+	worldTransforms_[PartID::kLegL].Initialize();
+
+	//LegR
+	worldTransforms_[PartID::kLegR].translation_ = { 3.0f, -3.0f, 0 };
+	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
+	worldTransforms_[PartID::kLegR].Initialize();
 
 	//ビュープロジェクション初期化
 	viewProjection_.Initialize();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0.0f, 0.0f, -50.0f };
+	viewProjection_.eye = { 0.0f, 3.0f, -30.0f };
 
 	//カメラ注視点座標を設定
-	viewProjection_.target = { 0.0f, 0.0f, 0.0f };
+	viewProjection_.target = { 0.0f, 3.0f, 0.0f };
 
 	//上方向ベクトルを指定
 	viewProjection_.up = { 0.0f, 1.0f, 0.0f };
 
-	viewProjection_.fovAngleY = 3.141592654f / 2;
+	viewProjection_.fovAngleY = 3.141592654f / 4;
+
+
+	//デバッグカメラ生成
+	debugCamera_ = new DebugCamera(1280, 720);
+
+	////軸方向表示の表示を有効にする
+	//AxisIndicator::GetInstance()->SetVisible(true);
+	////軸方向表示が参照するビュープロジェクションを指定する(アドレス渡し)
+	//AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+
+	////ライン描画が参照するビュープロジェクションを指定する(アドレス渡し)
+	//PrimitiveDrawer::GetInstance()->SetViewProjection(&debugCamera_->GetViewProjection());
 }
 
 void GameScene::Update() {
@@ -130,34 +145,41 @@ void GameScene::Update() {
 		viewProjection_.TransferMatrix();
 	}
 
-	//注視点移動
+	//キャラクター移動処理
+		//キャラクターの移動ベクトル
+	Vector3 move = { 0.0f ,0.0f ,0.0f };
+	float moveSpeed = 0.2f;
 	if (input_->PushKey(DIK_LEFT)) {
-		viewProjection_.target.x -= 0.2f;
+		move = { -moveSpeed,0.0f ,0.0f };
 	}if (input_->PushKey(DIK_RIGHT)) {
-		viewProjection_.target.x += 0.2f;
-	}if (input_->PushKey(DIK_UP)) {
-		viewProjection_.target.y += 0.2f;
-	}if (input_->PushKey(DIK_DOWN)) {
-		viewProjection_.target.y -= 0.2f;
+		move = { moveSpeed,0.0f ,0.0f };
 	}
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		if (scopeFlag == true) { scopeFlag = false; }
-		else { scopeFlag = true; }
+	worldTransforms_[PartID::kRoot].translation_ += move;
+	MatrixCalculation(worldTransforms_[PartID::kRoot]);
+	worldTransforms_[PartID::kRoot].TransferMatrix();
+	//上半身回転処理
+	//回転の早さ
+	const float rotSpeed = 0.05f;
+
+	worldTransforms_[PartID::kArmL].rotation_.x -= 2 * rotSpeed;
+	worldTransforms_[PartID::kArmR].rotation_.x += 2 * rotSpeed;
+	worldTransforms_[PartID::kLegL].rotation_.x += 2 * rotSpeed;
+	worldTransforms_[PartID::kLegR].rotation_.x -= 2 * rotSpeed;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_A)) {
+		worldTransforms_[PartID::kRoot].rotation_.y -= rotSpeed;
+	}	if (input_->PushKey(DIK_D)) {
+		worldTransforms_[PartID::kRoot].rotation_.y += rotSpeed;
 	}
 
-	if (scopeFlag == true) {
-		if (input_->TriggerKey(DIK_W)) { zoomFlag = true; }
-		if (input_->TriggerKey(DIK_S)) { zoomFlag = false; }
-
-		if (zoomFlag == true) { viewProjection_.fovAngleY -= 0.05f; }
-		else { viewProjection_.fovAngleY += 0.05f; }
-		if (viewProjection_.fovAngleY < 3.141592654f / 10.6f) { viewProjection_.fovAngleY = 3.141592654f / 10.6f; }
-		if (viewProjection_.fovAngleY > 3.141592654f / 5.398f) { viewProjection_.fovAngleY = 3.141592654f / 5.398f; }
-	}
-	else {
-		viewProjection_.fovAngleY = 3.141592654f / 2;//初期値
-		zoomFlag = false;
+	//子の更新大元から順に更新していく
+	for (int i = 0; i < PartID::kNumPartID; i++) {
+		if (i == 0) {
+			continue;
+		}
+		worldTransforms_[i].ParentChilldrenUpdate();
 	}
 
 	//デバック表示
@@ -171,11 +193,8 @@ void GameScene::Update() {
 	debugText_->Printf("fovAngleY(Degree):%f", ChangeDegree(viewProjection_.fovAngleY));
 	debugText_->SetPos(50, 130);
 	debugText_->Printf("nearZ:%f", viewProjection_.nearZ);
-	debugText_->SetPos(1000, 90);
-	if (scopeFlag == true) {
-		if (zoomFlag == false) { debugText_->Printf("x4"); }
-		if (zoomFlag == true) { debugText_->Printf("x8"); }
-	}
+	debugText_->SetPos(50, 150);
+	debugText_->Printf("Root:(%f,%f,%f)", worldTransforms_[PartID::kRoot].translation_.x, worldTransforms_[PartID::kRoot].translation_.y, worldTransforms_[PartID::kRoot].translation_.z);
 }
 
 void GameScene::Draw() {
@@ -205,10 +224,11 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	//3Dモデル描画
-	for (int i = 0; i < 9; i++) {
-		for (int j = 0; j < 9; j++) {
-			model_->Draw(worldTransform_[i][j], viewProjection_, textureHandle_);
+	for (int i = 0; i < PartID::kNumPartID; i++) {
+		if (i < 2) {
+			continue;
 		}
+		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
 	}
 
 	// 3Dオブジェクト描画後処理
@@ -222,7 +242,6 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
-	if (scopeFlag == true) { sprite_->Draw(); sprite2_->Draw(); }
 
 
 	// デバッグテキストの描画
