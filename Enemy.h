@@ -48,7 +48,7 @@ public:
 	/// <summary>
 	/// 敵の接近
 	/// </summary>
-	void ApproechMove();
+	void ApproachMove();
 
 	/// <summary>
 	/// 敵の離脱
@@ -63,7 +63,7 @@ public:
 	/// <summary>
 	/// 接近フェーズの初期化
 	/// </summary>
-	void ApproschInitislize();
+	void ApproachInitislize();
 
 	//衝突時コールバックを呼び出す
 	void OnCollision();
@@ -104,6 +104,8 @@ private:
 
 	// フェーズ
 	Phase phase_ = Phase::Approach;
+
+	static void(Enemy::* phaseFuncTable[])();
 
 	// 発射タイマー
 	int32_t fireTimer = 0;

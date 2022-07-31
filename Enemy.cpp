@@ -1,6 +1,8 @@
 #include "Enemy.h"
 #include "Player.h"
 
+void (Enemy::* Enemy::phaseFuncTable[])() = { &Enemy::ApproachMove, &Enemy::LeaveMove };
+
 void Enemy::Initailize(Model* model, const Vector3& position) {
 	assert(model);
 
@@ -15,12 +17,12 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	// ワールドトランスフォームの初期化
 	worldTransform_.Initialize();
 
-	ApproschInitislize();
+	ApproachInitislize();
 }
 
 void Enemy::OnCollision(){}
 
-void Enemy::ApproschInitislize() {
+void Enemy::ApproachInitislize() {
 	// 発射タイマーの初期化
 	fireTimer = kFireInterbal;
 }
@@ -36,7 +38,7 @@ Vector3 Enemy::GetWorldPosition() {
 	return worldPos;
 }
 
-void Enemy::ApproechMove() {
+void Enemy::ApproachMove() {
 	// 速度設定
 	Vector3 approchMove;
 	const float enemySpeed = 0.2f;
@@ -108,17 +110,8 @@ void Enemy::Update() {
 		});
 
 
-	// switch文でフェーズ分け
-	switch (phase_) {
-	case Phase::Approach:
-	default:
-		ApproechMove();
-		//Fire();
-		break;
-	case Phase::Leave:
-		LeaveMove();
-		break;
-	}
+	//移動処理
+	(this->*phaseFuncTable[static_cast<size_t>(phase_)])();
 
 	// 弾更新
 	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
