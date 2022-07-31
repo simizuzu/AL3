@@ -3,6 +3,7 @@
 #include <cassert>
 #include"AxisIndicator.h"
 #include"PrimitiveDrawer.h"
+#include <random>
 
 using namespace MathUtility;
 
@@ -12,6 +13,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete sprite_;
 }
 
 void GameScene::Initialize() {
@@ -23,6 +25,12 @@ void GameScene::Initialize() {
 
 	//ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandleSprite_ = TextureManager::Load("reticle.png");
+
+	//スプライトの生成
+	sprite_ = Sprite::Create(textureHandleSprite_, { 576,296 });
+
+
 	//3Dモデルの生成
 	model_ = Model::Create();
 
@@ -35,6 +43,19 @@ void GameScene::Initialize() {
 	//平行移動行列宣言
 	Matrix4 matTrans = Matrix4Identity();
 
+	//乱数シード生成器
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスターの乱数エンジン
+	std::mt19937_64 engine(seed_gen());
+	//回転角用の乱数範囲を設定
+	std::uniform_real_distribution<float>radian(0, 3.141592654);
+	//乱数エンジンを渡し、指定範囲からランダムな数値を得る
+	float matRotation = radian(engine);
+	//座標用の乱数範囲を設定
+	std::uniform_real_distribution<float>coordinate(-10, 10);
+	//乱数エンジンを渡し、指定範囲からランダムな数値を得る
+	float matTranslation = coordinate(engine);
+
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
 
@@ -43,12 +64,12 @@ void GameScene::Initialize() {
 
 			//X,Y,Z方向のスケーリングを設定
 			SetMatScale(matScale, { 1.0f,1.0f,1.0f });
-			//X,Y,Z軸周りの回転角を乱数で設定
-			SetMatRotX(matRotX, 0.0f);
-			SetMatRotY(matRotY, 0.0f);
-			SetMatRotZ(matRotZ, 0.0f);
+			//X,Y,Z軸周りの回転角を設定
+			SetMatRotX(matRotX, radian(engine));
+			SetMatRotY(matRotY, radian(engine));
+			SetMatRotZ(matRotZ, radian(engine));
 			//X,Y,Z軸周りの平行移動(座標)を設定
-			SetMatTrans(matTrans, { -16 + i * 4.0f,-16 + j * 4.0f,0 });
+			SetMatTrans(matTrans, { coordinate(engine) ,coordinate(engine) ,coordinate(engine) });
 
 			//worldTransform_.matWorld_に単位行列を代入する
 			worldTransform_[i][j].matWorld_.m[0][0] = 1.0f;
@@ -114,28 +135,23 @@ void GameScene::Update() {
 	}
 
 	//注視点移動
-	if (input_->PushKey(DIK_A)) {
+	if (input_->PushKey(DIK_LEFT)) {
 		viewProjection_.target.x -= 0.2f;
-	}if (input_->PushKey(DIK_D)) {
+	}if (input_->PushKey(DIK_RIGHT)) {
 		viewProjection_.target.x += 0.2f;
-	}if (input_->PushKey(DIK_W)) {
+	}if (input_->PushKey(DIK_UP)) {
 		viewProjection_.target.y += 0.2f;
-	}if (input_->PushKey(DIK_S)) {
+	}if (input_->PushKey(DIK_DOWN)) {
 		viewProjection_.target.y -= 0.2f;
 	}
 
-	//ズームイン,アウト
-	if (input_->PushKey(DIK_UP)) {
-		viewProjection_.fovAngleY -= 0.01f;
-	}if (input_->PushKey(DIK_DOWN)) {
-		viewProjection_.fovAngleY += 0.01f;
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (zoomFlag == true) { zoomFlag = false; }
+		else { zoomFlag = true; }
 	}
 
-	if (viewProjection_.fovAngleY < 0.01f) {
-		viewProjection_.fovAngleY = 0.01f;
-	}if (viewProjection_.fovAngleY > 3.141592654f) {
-		viewProjection_.fovAngleY = 3.141592654f;
-	}
+	if (zoomFlag == false) { viewProjection_.fovAngleY = 0.6981317f; }
+	else { viewProjection_.fovAngleY = 0.6981317f / 2; }
 
 	//デバック表示
 	debugText_->SetPos(50, 50);
@@ -194,6 +210,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	if (zoomFlag == true) { sprite_->Draw(); }
+
 
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);
