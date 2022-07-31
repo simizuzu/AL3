@@ -72,10 +72,21 @@ void GameScene::Initialize() {
 	worldTransforms_[PartID::kArmL].translation_ = { -3.0f, 0, 0 };
 	worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
 	worldTransforms_[PartID::kArmL].Initialize();
+
+	//ArmL2
+	worldTransforms_[PartID::kArmL2].translation_ = { 0.0f, -2.0f, 0 };
+	worldTransforms_[PartID::kArmL2].parent_ = &worldTransforms_[PartID::kArmL];
+	worldTransforms_[PartID::kArmL2].Initialize();
+
 	//ArmR
 	worldTransforms_[PartID::kArmR].translation_ = { 3.0f, 0, 0 };
 	worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
 	worldTransforms_[PartID::kArmR].Initialize();
+
+	//ArmR2
+	worldTransforms_[PartID::kArmR2].translation_ = { 0.0f, -2.0f, 0 };
+	worldTransforms_[PartID::kArmR2].parent_ = &worldTransforms_[PartID::kArmR];
+	worldTransforms_[PartID::kArmR2].Initialize();
 
 	//下半身
 	//Hip
@@ -84,14 +95,24 @@ void GameScene::Initialize() {
 	worldTransforms_[PartID::kHip].Initialize();
 
 	//LegL
-	worldTransforms_[PartID::kLegL].translation_ = { -3.0f, -3.0f, 0 };
+	worldTransforms_[PartID::kLegL].translation_ = { -2.0f, -3.0f, 0 };
 	worldTransforms_[PartID::kLegL].parent_ = &worldTransforms_[PartID::kHip];
 	worldTransforms_[PartID::kLegL].Initialize();
 
+	//LegL2
+	worldTransforms_[PartID::kLegL2].translation_ = { 0.0f, -2.0f, 0 };
+	worldTransforms_[PartID::kLegL2].parent_ = &worldTransforms_[PartID::kLegL];
+	worldTransforms_[PartID::kLegL2].Initialize();
+
 	//LegR
-	worldTransforms_[PartID::kLegR].translation_ = { 3.0f, -3.0f, 0 };
+	worldTransforms_[PartID::kLegR].translation_ = { 2.0f, -3.0f, 0 };
 	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
 	worldTransforms_[PartID::kLegR].Initialize();
+
+	//LegR2
+	worldTransforms_[PartID::kLegR2].translation_ = { 0.0f, -2.0f, 0 };
+	worldTransforms_[PartID::kLegR2].parent_ = &worldTransforms_[PartID::kLegR];
+	worldTransforms_[PartID::kLegR2].Initialize();
 
 	//ビュープロジェクション初期化
 	viewProjection_.Initialize();
@@ -162,19 +183,6 @@ void GameScene::Update() {
 	//回転の早さ
 	const float rotSpeed = 0.05f;
 
-	if (rotFlag == false) {
-		worldTransforms_[PartID::kArmL].rotation_.x -= rotSpeed;
-		worldTransforms_[PartID::kArmR].rotation_.x += rotSpeed;
-		worldTransforms_[PartID::kLegL].rotation_.x += rotSpeed;
-		worldTransforms_[PartID::kLegR].rotation_.x -= rotSpeed;
-	}
-	else {
-		worldTransforms_[PartID::kArmL].rotation_.x += rotSpeed;
-		worldTransforms_[PartID::kArmR].rotation_.x -= rotSpeed;
-		worldTransforms_[PartID::kLegL].rotation_.x -= rotSpeed;
-		worldTransforms_[PartID::kLegR].rotation_.x += rotSpeed;
-	}
-
 	if (worldTransforms_[PartID::kArmL].rotation_.x < -0.8f) {
 		rotFlag = true;
 	}if (worldTransforms_[PartID::kArmL].rotation_.x > 0.8f) {
@@ -186,6 +194,35 @@ void GameScene::Update() {
 		worldTransforms_[PartID::kRoot].rotation_.y -= rotSpeed;
 	}	if (input_->PushKey(DIK_D)) {
 		worldTransforms_[PartID::kRoot].rotation_.y += rotSpeed;
+	}
+
+	if (input_->PushKey(DIK_W)) {
+		if (rotFlag == false) {
+			worldTransforms_[PartID::kArmL].rotation_.x -= rotSpeed;
+			worldTransforms_[PartID::kArmR].rotation_.x += rotSpeed;
+			worldTransforms_[PartID::kLegL].rotation_.x += rotSpeed;
+			worldTransforms_[PartID::kLegR].rotation_.x -= rotSpeed;
+		}
+		else {
+			worldTransforms_[PartID::kArmL].rotation_.x += rotSpeed;
+			worldTransforms_[PartID::kArmR].rotation_.x -= rotSpeed;
+			worldTransforms_[PartID::kLegL].rotation_.x -= rotSpeed;
+			worldTransforms_[PartID::kLegR].rotation_.x += rotSpeed;
+		}
+	}
+	else {
+		if (worldTransforms_[PartID::kArmL].rotation_.x <= 0.0f) {
+			worldTransforms_[PartID::kArmL].rotation_.x += rotSpeed;
+			worldTransforms_[PartID::kArmR].rotation_.x -= rotSpeed;
+			worldTransforms_[PartID::kLegL].rotation_.x -= rotSpeed;
+			worldTransforms_[PartID::kLegR].rotation_.x += rotSpeed;
+		}
+		if (worldTransforms_[PartID::kArmL].rotation_.x >= 0.0f) {
+			worldTransforms_[PartID::kArmL].rotation_.x -= rotSpeed;
+			worldTransforms_[PartID::kArmR].rotation_.x += rotSpeed;
+			worldTransforms_[PartID::kLegL].rotation_.x += rotSpeed;
+			worldTransforms_[PartID::kLegR].rotation_.x -= rotSpeed;
+		}
 	}
 
 	//子の更新大元から順に更新していく
