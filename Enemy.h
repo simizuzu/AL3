@@ -9,6 +9,7 @@
 
 #include "Affine.h"
 #include "EnemyBullet.h"
+#include "TimedCall.h"
 
 /// <summary>
 /// 敵
@@ -57,9 +58,14 @@ public:
 	/// </summary>
 	void ApproschInitislize();
 
+	/// <summary>
+	/// 弾を発射し、タイマーをリセットするコールバック関数
+	/// </summary>
+	void FireReset();
+
 public:
 	// 発射間隔
-	static int const kFireInterbal = 60;
+	static int const kFireInterval = 60;
 
 private:
 	// ワールド変換データ
@@ -85,5 +91,8 @@ private:
 
 	// 発射タイマー
 	int32_t fireTimer = 0;
+
+	//時限発動のリスト
+	std::list<std::unique_ptr<TimedCall>> timedCalls_;
 };
 

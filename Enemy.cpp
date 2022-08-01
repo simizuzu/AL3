@@ -17,8 +17,8 @@ void Enemy::Initailize(Model* model, const Vector3& position) {
 	ApproschInitislize();
 }
 void Enemy::ApproschInitislize() {
-	// 発射タイマーの初期化
-	fireTimer = kFireInterbal;
+	//発射タイムをリセットする
+	timedCalls_.push_back(std::make_unique<TimedCall>(std::bind(&Enemy::FireReset, this), kFireInterval));
 }
 
 void Enemy::ApproechMove() {
@@ -41,7 +41,7 @@ void Enemy::ApproechMove() {
 		// 弾を発射
 		Fire();
 		// 発射タイマーを初期化
-		fireTimer = kFireInterbal;
+		fireTimer = kFireInterval;
 	}
 
 	debugText_->SetPos(50, 100);
@@ -73,12 +73,21 @@ void Enemy::Fire() {
 	bullets_.push_back(std::move(newBullet));
 }
 
+void Enemy::FireReset()
+{
+	Fire();
+	timedCalls_.push_back(std::make_unique<TimedCall>(std::bind(&Enemy::FireReset, this), kFireInterval));
+}
+
 void Enemy::Update(Affine* affine) {
 
 	// デスフラグの立った球を削除
 	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) {
 		return bullet->IsDead();
 		});
+
+	//削除
+	timedCalls_.remove_if([](std::unique_ptr<TimedCall>& call) { return call->IsFinished(); });
 
 
 	// switch文でフェーズ分け
