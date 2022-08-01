@@ -1,36 +1,89 @@
 #include "Enemy.h"
-#include "Player.h"
+#include "GameScene.h"
+#include <cassert>
+#include"EnemyStateApproach.h"
 
-void (Enemy::* Enemy::phaseFuncTable[])() = { &Enemy::ApproachMove, &Enemy::LeaveMove };
+void (Enemy::*Enemy::phaseFuncTable[])() = {&Enemy::ApproachVelocity, &Enemy::LeaveVelocity};
 
-void Enemy::Initailize(Model* model, const Vector3& position) {
+// 初期化
+void Enemy::Initialize(Model* model, uint32_t textureHandle, const Vector3& position) {
+	// NUULポインタ」チェック
 	assert(model);
 
+	//引数として受け取ったデータをメンバ変数に記録する
 	model_ = model;
-	//	テクスチャ読み込み
-	textureHandle_ = TextureManager::Load("enemy.png");
+	texturehandle_ = textureHandle;
 
+	//シングルインスタンスを取得する
+	input_ = Input::GetInstance();
 	debugText_ = DebugText::GetInstance();
 
-	// 引数で受け取った初期座標をセット
+	//引数で受け取った初期座標をセット
 	worldTransform_.translation_ = position;
-	// ワールドトランスフォームの初期化
+	//ワールド変換の初期化
 	worldTransform_.Initialize();
 
-	ApproachInitislize();
+	state_ = std::make_unique<EnemyStateApproach>();
+
+	//接近フェーズ初期化
+	approachPhaseInt();
 }
 
-void Enemy::OnCollision(){}
+// 更新処理
+void Enemy::Update() {
 
-void Enemy::ApproachInitislize() {
-	// 発射タイマーの初期化
-	fireTimer = kFireInterbal;
+	//移動処理
+	//(this->*phaseFuncTable[static_cast<size_t>(phase_)])();
+	// //移動処理
+	state_->Update(this);
+
+	//ワールド行列計算
+	MyMath::AffineTransformation(worldTransform_);
 }
 
+// 描画
+void Enemy::Draw(ViewProjection& viewProjection) {
+	model_->Draw(worldTransform_, viewProjection, texturehandle_);
+}
+
+// 弾発射
+void Enemy::Fire() {
+
+	assert(player_);
+
+	//弾の速度
+	const float kBulletSpeed = 1.0f;
+
+	//プレイヤーのワールド座標を取得
+	Vector3 playerPos = player_->GetWorldPosition();
+	//敵キャラのワールド座標を取得
+	Vector3 enemyPos = GetWorldPosition();
+	//敵キャラ->自キャラの差分ベクトルを求める
+	Vector3 velocity = MyMath::Vector3Sub(playerPos, enemyPos);
+	//ベクトルの正規化
+	velocity = MyMath::Vector3Normalize(velocity);
+	//ベクトルの長さを、早さに合わせる
+	velocity *= kBulletSpeed;
+
+	// 弾を生成し、初期化
+	std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
+	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+
+	//弾を登録する
+	gameScene_->AddEnemyBullet(newBullet);
+}
+
+//接近フェーズ初期化
+void Enemy::approachPhaseInt() {
+	//発射タイマーを初期化
+	fileTimer_ = kFireInterval;
+}
+
+// ワールド座標を所得
 Vector3 Enemy::GetWorldPosition() {
-	// ワールド座標を入れる変数
+	//ワールド座標を入れる変数
 	Vector3 worldPos;
-	// ワールド行列の平行移動成分を取得（ワールド座標）
+	//ワールド行列の平行移動成分を取得(ワールド座標)
 	worldPos.x = worldTransform_.matWorld_.m[3][0];
 	worldPos.y = worldTransform_.matWorld_.m[3][1];
 	worldPos.z = worldTransform_.matWorld_.m[3][2];
@@ -38,105 +91,33 @@ Vector3 Enemy::GetWorldPosition() {
 	return worldPos;
 }
 
-void Enemy::ApproachMove() {
-	// 速度設定
-	Vector3 approchMove;
-	const float enemySpeed = 0.2f;
-	approchMove = { 0,0,-enemySpeed };
+void Enemy::OnCollision() { isDead_ = true; }
 
-	// 移動（ベクトルを加算）
-	worldTransform_.translation_ += approchMove;
-	// 規定の位置に到達したら離脱
+float Enemy::GetRadius() { return radius_; }
+
+// 接近フェーズ移動処理
+void Enemy::ApproachVelocity() {
+
+	//発射タイマーカウントダウン
+	fileTimer_--;
+	//指定時間に達した
+	if (fileTimer_ == 0) {
+		//弾の発射
+		Fire();
+		//発射タイマーを初期化
+		fileTimer_ = kFireInterval;
+	}
+
+	//移動(ベクトルを加算)
+	worldTransform_.translation_ += approachVelocity_;
+	//既定の位置に到着したら離脱
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
 	}
-
-	// 発射タイマーカウントダウン
-	fireTimer--;
-	// 指定時間に達した
-	if (fireTimer < 0) {
-		// 弾を発射
-		Fire();
-		// 発射タイマーを初期化
-		fireTimer = kFireInterbal;
-	}
-
-	debugText_->SetPos(50, 100);
-	debugText_->GetInstance()->Printf(
-		"fierTimer:(%f)", fireTimer
-	);
 }
 
-void Enemy::LeaveMove() {
-	// 速度設定
-	Vector3 leaveMove;
-	const float enemySpeed = 0.2f;
-	leaveMove = { -0.1f,0.1f,-enemySpeed };
-
-	// 移動（ベクトルを加算）
-	worldTransform_.translation_ += leaveMove;
-}
-
-void Enemy::Fire() {
-	assert(player_);
-
-	// 自キャラの座標をコピー
-	const float kBulletSpeed = 1.0f;
-
-	// 自キャラのワールド座標を取得する
-	Vector3 playerPos = player_->GetWorldPosition();
-	// 敵キャラのワールド座標を取得する
-	Vector3 enemyPos = GetWorldPosition();
-	// 差分ベクトル
-	Vector3 velocity =  playerPos - enemyPos;
-	// 正規化
-	velocity = MathUtility::Vector3Normalize(velocity);
-	// ベクトルの長さを、速さに合わせる
-	velocity *=  -kBulletSpeed;
-
-	// 弾を生成し、初期化
-	std::unique_ptr<EnemyBullet> newBullet = std::make_unique <EnemyBullet>();
-	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
-
-	// 弾を登録する
-	bullets_.push_back(std::move(newBullet));
-}
-
-void Enemy::Update() {
-
-	// デスフラグの立った球を削除
-	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) {
-		return bullet->IsDead();
-		});
-
-
-	//移動処理
-	(this->*phaseFuncTable[static_cast<size_t>(phase_)])();
-
-	// 弾更新
-	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
-		bullet->Update();
-	}
-
-	// ワールドトランスフォームの更新
-	worldTransform_.matWorld_ = math::UpdateMatrix(worldTransform_);
-	worldTransform_.TransferMatrix(); // 行列の転送
-
-	// デバック文字
-	debugText_->SetPos(50, 40);
-	debugText_->GetInstance()->Printf(
-		"Enemy(%f,%f,%f)",
-		worldTransform_.translation_.x,
-		worldTransform_.translation_.y,
-		worldTransform_.translation_.z);
-}
-
-void Enemy::Draw(const ViewProjection& viewProjection) {
-	// モデルの描画
-	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
-	// 弾描画
-	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) { // if (bullet_ != nullptr)
-		bullet->Draw(viewProjection);
-	}
+//離脱フェーズ移動処理
+void Enemy::LeaveVelocity() {
+	//移動(ベクトルを加算)
+	worldTransform_.translation_ += leaveVelocity_;
 }
